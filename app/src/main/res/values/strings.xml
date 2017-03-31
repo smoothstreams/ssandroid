@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">SmoothStreams Player</string>
+    <string name="chromecast_app_id" translatable="false">1586DC79</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_search">Search</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="title_activity_main">Streams</string>
+    <string name="media_controls_description">Media Controls</string>
+    <string name="preferences_login_settings">Login Settings</string>
+    <string name="preferences_service">Service</string>
+    <string name="preferences_username">Username</string>
+    <string name="preferences_password">Password</string>
+    <string name="preferences_hash">Pass Hash</string>
+    <string name="preferences_stream_settings">Stream Settings</string>
+    <string name="preferences_server_location">Server Location</string>
+    <string name="preferences_high_quality">High Quality</string>
+
+    <string name="preferences_europe">EU Random</string>
+    <string name="preferences_amsterdam_i3d">EU (NL-i3d)</string>
+    <string name="preferences_amsterdam_evo">EU (NL-Evo)</string>
+    <string name="preferences_london">EU (UK-London)</string>
+    <string name="preferences_united_states">US All</string>
+    <string name="preferences_us_east">US East</string>
+    <string name="preferences_us_west">US West</string>
+    <string name="preferences_asia">Asia</string>
+
+    <string name="preferences_protocol">Protocol</string>
+    <string name="preferences_other">Other</string>
+    <string name="preferences_clear_search_history">Clear local search history</string>
+    <string name="preferences_clear_search_history_hint">Remove searches you have performed from this device</string>
+    <string name="pref_service_username_key" translatable="false">pref_service_username_key</string>
+    <string name="pref_service_password_key" translatable="false">pref_service_password_key</string>
+    <string name="pref_service_key" translatable="false">pref_service_key</string>
+    <string name="pref_server_key" translatable="false">pref_server_key</string>
+    <string name="pref_quality_key" translatable="false">pref_quality_key</string>
+    <string name="pref_ss_uid_key" translatable="false">pref_ss_uid_key</string>
+    <string name="pref_ss_valid_key" translatable="false">pref_ss_valid_key</string>
+    <string name="pref_ss_password_key" translatable="false">pref_ss_password_key</string>
+    <string name="pref_service_default_value" translatable="false">live247</string>
+    <string name="pref_server_default_value" translatable="false">d77.smoothstreams.tv</string>
+    <string name="pref_protocol_key">pref_protocol_key</string>
+    <string name="pref_protocol_default_value">0</string>
+    <string name="pref_protocol_notice_checkbox_key">pref_protocol_checkbox_key</string>
+    <string name="pref_debug_mode_key">pref_debug_mode_key</string>
+    <string name="pref_clear_search_history_key">pref_clear_search_history_key</string>
+    <string name="notice_dialog_dont_show">Do not show this notice again.</string>
+    <string name="notice_dialog_dismiss">OK</string>
+    <string name="notice_dialog_title">Notice!</string>
+    <string name="notice_dialog_text">Codec support varies across devices and Android versions. If streams are not loading try using a different protocol or toggle the quality.\n\nNote: Chromecasting will always use HLS.</string>
+
+    <string-array name="list_services" translatable="false">
+        <item translatable="false">Live247</item>
+        <item translatable="false">MyStreams/uSport</item>
+        <item translatable="false">StarStreams</item>
+        <item translatable="false">MMA Pro</item>
+        <item translatable="false">MMA SR+</item>
+        <item translatable="false">StreamTVnow</item>
+    </string-array>
+    <string-array name="list_services_values" translatable="false">
+        <item translatable="false">live247</item>
+        <item translatable="false">mystreams</item>
+        <item translatable="false">starstreams</item>
+        <item translatable="false">mma-tv</item>
+        <item translatable="false">mma-sr</item>
+        <item translatable="false">streamtvnow</item>
+    </string-array>
+    <string-array name="list_servers" translatable="false">
+        <item>@string/preferences_europe</item>
+        <item>@string/preferences_amsterdam_i3d</item>
+        <item>@string/preferences_amsterdam_evo</item>
+        <item>@string/preferences_london</item>
+        <item>@string/preferences_united_states</item>
+        <item>@string/preferences_us_east</item>
+        <item>@string/preferences_us_west</item>
+        <item>@string/preferences_asia</item>
+    </string-array>
+    <string-array name="list_servers_values" translatable="false">
+        <item translatable="false">dEU.smoothstreams.tv</item>
+        <item translatable="false">deu.nl1.smoothstreams.tv</item>
+        <item translatable="false">deu.nl2.smoothstreams.tv</item>
+        <item translatable="false">deu.uk.smoothstreams.tv</item>
+        <item translatable="false">dNA.smoothstreams.tv</item>
+        <item translatable="false">dNAe.smoothstreams.tv</item>
+        <item translatable="false">dNAw.smoothstreams.tv</item>
+        <item translatable="false">dSG.smoothstreams.tv</item>
+    </string-array>
+    <string-array name="list_server_streamtvnow_values" translatable="false">
+        <item translatable="false">dNAe.smoothstreams.tv</item>
+        <item translatable="false">deu.nl2.smoothstreams.tv</item>
+        <item translatable="false">dSG.smoothstreams.tv</item>
+    </string-array>
+    <string-array name="list_server_streamtvnow" translatable="false">
+        <item>@string/preferences_united_states</item>
+        <item>@string/preferences_amsterdam_evo</item>
+        <item>@string/preferences_asia</item>
+    </string-array>
+
+
+
+    <string name="title_activity_video">VideoActivity</string>
+    <string name="title_activity_about">About</string>
+    <string name="action_about">About</string>
+    <string name="about_version">Version</string>
+    <string name="about_developed_by">Developed by aaearon</string>
+    <string name="about_body" translatable="false">\nA video player for the SmoothStreams.tv Networks (Live247.tv / MyStreams.tv / uSport / StarStreams.tv / MMA-TV.net / TFR / StreamTVnow) with Chromecast support.</string>
+    <string name="event_header_row_channel">CH</string>
+    <string name="event_header_row_time">TIME</string>
+    <string name="event_header_row_name">NAME</string>
+    <string name="no_internet_connection_detected">No internet connection detected!</string>
+    <string name="ga_screen_channels" translatable="false">Channels</string>
+    <string name="ga_screen_alert_dialog" translatable="false">Set Alert Dialog</string>
+    <string name="ga_screen_events" translatable="false">Events</string>
+    <string name="ga_screen_video_player" translatable="false">Video Player</string>
+    <string name="ga_screen_about" translatable="false">About</string>
+    <string name="ga_screen_settings" translatable="false">Settings</string>
+    <string name="ga_screen_search" translatable="false">Search</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="ga_events_category_playback" translatable="false">Playback Events</string>
+    <string name="ga_events_action_local" translatable="false">Local</string>
+    <string name="ga_events_action_chromecast" translatable="false">Chromecast</string>
+    <string name="ga_events_action_external" translatable="false">External</string>
+    <string name="ga_events_category_alert" translatable="false">Alert Events</string>
+    <string name="ga_events_action_set_alert" translatable="false">Set Alert</string>
+    <string name="ga_events_category_search" translatable="false">Search Events</string>
+    <string name="ga_events_action_search" translatable="false">Search</string>
+    <string name="ga_events_category_debug" translatable="false">Debug Events</string>
+    <string name="ga_events_action_debug_enable" translatable="false">Debug mode enabled</string>
+
+
+    <string name="search_hint">Search for events</string>
+    <string name="search_no_results">No results. Try your search again.</string>
+
+    <string-array name="list_times" translatable="false">
+        <item>None</item>
+        <item>5 minutes</item>
+        <item>10 minutes</item>
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>2 hours</item>
+        <item>3 hours</item>
+        <item>6 hours</item>
+        <item>12 hours</item>
+        <item>1 day</item>
+    </string-array>
+    <string-array name="list_times_values" translatable="false">
+        <item translatable="false">0</item>
+        <item translatable="false">5</item>
+        <item translatable="false">10</item>
+        <item translatable="false">15</item>
+        <item translatable="false">30</item>
+        <item translatable="false">60</item>
+        <item translatable="false">120</item>
+        <item translatable="false">180</item>
+        <item translatable="false">360</item>
+        <item translatable="false">720</item>
+        <item translatable="false">1440</item>
+    </string-array>
+    <string-array name="list_stream_protocols" translatable="false">
+        <item translatable="false">HLS (HTML5)</item>
+        <!--item translatable="false">RTMP</item-->
+    </string-array>
+    <string-array name="list_stream_protocols_values" translatable="false">
+        <item translatable="false">0</item>
+        <item translatable="false">1</item>
+    </string-array>
+
+    <string name="alert_ok">OK</string>
+    <string name="alert_cancel">Cancel</string>
+    <string name="alert_title">Set Alert</string>
+    <string name="alert_event_name_label">Name</string>
+    <string name="alert_event_channel_label">Channel</string>
+    <string name="alert_event_time_label">Time</string>
+    <string name="alert_event_reminder_label">Reminder</string>
+    <string name="alert_successful">Alert created!</string>
+    <string name="title_activity_searchable">Search</string>
+    <string name="button_disable_debug">Disable debug mode</string>
+
+</resources>

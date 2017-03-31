@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:shrinkColumns="1">
+
+        <TableRow>
+            <TextView
+                android:id="@+id/alert_dialog_event_name_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:text="@string/alert_event_name_label"/>
+            <TextView
+                android:id="@+id/alert_dialog_event_name_field"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"/>
+        </TableRow>
+
+
+        <TableRow>
+            <TextView
+                android:id="@+id/alert_dialog_event_channel_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:text="@string/alert_event_channel_label"/>
+            <TextView
+                android:id="@+id/alert_dialog_event_channel_field"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"/>
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:id="@+id/alert_dialog_event_time_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:text="@string/alert_event_time_label"/>
+            <TextView
+                android:id="@+id/alert_dialog_event_time_field"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"/>
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:id="@+id/alert_dialog_time_before_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:text="@string/alert_event_reminder_label"/>
+
+            <Spinner
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/alert_dialog_spinner"
+                android:entries="@array/list_times"
+                android:entryValues="@array/list_times_values"
+                android:layout_column="1"/>
+        </TableRow>
+
+</TableLayout>

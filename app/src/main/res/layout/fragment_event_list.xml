@@ -1,0 +1,23 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+
+                tools:context="com.iosharp.android.ssplayer.fragment.ChannelListFragment">
+
+    <com.applidium.headerlistview.HeaderListView
+        android:id="@+id/channel_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+/>
+
+    <com.google.android.libraries.cast.companionlibrary.widgets.MiniController
+        android:id="@+id/miniController_event"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/shadow7"
+        android:visibility="gone">
+    </com.google.android.libraries.cast.companionlibrary.widgets.MiniController>
+
+</RelativeLayout>
