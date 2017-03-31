@@ -103,14 +103,4 @@ public class ChannelAdapter extends CursorAdapter {
             }
         }
     }
-
-    @Override
-    public int getItemViewType(int position) {
-        return position;
-    }
-
-    @Override
-    public int getViewTypeCount() {
-        return 50;
-    }
 }
