@@ -101,7 +101,7 @@ public class StreamUrl {
 
         switch (protocol) {
             case StreamUrl.HTML5:
-                STREAM_CHANNEL_AND_QUALITY = String.format("ch%s.smil", channelId);
+                STREAM_CHANNEL_AND_QUALITY = String.format("ch%sq%s.stream", channelId, streamQuality);
                 BASE_URL = "http://" + SERVICE_URL_AND_PORT + "/"+ servicePath +"/" + STREAM_CHANNEL_AND_QUALITY + "/playlist.m3u8";
 
                 uri = Uri.parse(BASE_URL).buildUpon()
