@@ -70,7 +70,6 @@ public class ChannelListFragment extends Fragment implements LoaderManager.Loade
     public static final int COL_EVENT_LANGUAGE = 8;
 
     private ChannelAdapter mAdapter;
-    private MiniController mMini;
     private VideoCastManager mCastManager;
     private int mChannelId;
 
@@ -148,7 +147,7 @@ public class ChannelListFragment extends Fragment implements LoaderManager.Loade
 
         // MiniController
         if (mCastManager != null) {
-            mMini = (MiniController) rootView.findViewById(R.id.miniController_channel);
+            MiniController mMini = (MiniController) rootView.findViewById(R.id.miniController_channel);
             mCastManager.addMiniController(mMini);
         }
 

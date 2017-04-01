@@ -12,11 +12,11 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.iosharp.android.ssplayer.Constants;
 import com.iosharp.android.ssplayer.PlayerApplication;
 import com.iosharp.android.ssplayer.R;
 import com.iosharp.android.ssplayer.activity.MainActivity;
 import com.iosharp.android.ssplayer.db.ChannelContract;
-import com.iosharp.android.ssplayer.fragment.AlertFragment;
 import com.iosharp.android.ssplayer.fragment.EventListFragment;
 import com.iosharp.android.ssplayer.utils.Utils;
 import com.squareup.okhttp.OkHttpClient;
@@ -123,7 +123,8 @@ public class SmoothService extends IntentService {
 
                         int eventId = Integer.parseInt(e.getString(TAG_EVENT_ID));
                         String eventNetwork = e.getString(TAG_EVENT_NETWORK);
-                        String eventName = Utils.getCleanTitle(e.getString(TAG_EVENT_NAME));
+                        // For example, Mike &amp; Mike -> Mike & Mike
+                        String eventName = e.getString(TAG_EVENT_NAME).replace("&amp;", "&");
                         String eventDescription = e.getString(TAG_EVENT_DESCRIPTION);
                         long eventStartDate = Utils.convertDateToLong(e.getString(TAG_EVENT_START_DATE));
                         long eventEndDate = Utils.convertDateToLong(e.getString(TAG_EVENT_END_DATE));
@@ -232,7 +233,7 @@ public class SmoothService extends IntentService {
             int channel = intent.getIntExtra(EXTRA_CHANNEL, -1);
             long time = intent.getLongExtra(EXTRA_TIME, -1);
 
-            String formattedDateString = Utils.formatLongToString(time, AlertFragment.TIME_FORMAT);
+            String formattedDateString = Utils.formatLongToString(time, Constants.YEAR_TIME_FORMAT);
 
             Intent notificationIntent = new Intent(context, MainActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);

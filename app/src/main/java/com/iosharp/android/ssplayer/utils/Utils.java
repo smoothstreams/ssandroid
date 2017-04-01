@@ -19,6 +19,7 @@ import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.common.images.WebImage;
+import com.iosharp.android.ssplayer.Constants;
 import com.iosharp.android.ssplayer.R;
 import com.iosharp.android.ssplayer.tasks.FetchLoginInfoTask;
 
@@ -26,6 +27,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
@@ -59,6 +61,10 @@ public class Utils {
         return null;
     }
 
+    public static String twoDigitsString(int number) {
+        return String.format(Locale.US, "%02d", number);
+    }
+
     public static boolean checkForSetServiceCredentials(Context c) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(c);
         Long validTime = sharedPreferences.getLong(c.getString(R.string.pref_ss_valid_key),0);
@@ -70,9 +76,7 @@ public class Utils {
                 FetchLoginInfoTask loginTask = new FetchLoginInfoTask(c, true);
                 try {
                     loginTask.execute().get();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
+                } catch (InterruptedException|ExecutionException e) {
                     e.printStackTrace();
                 }
                 password = sharedPreferences.getString(c.getString(R.string.pref_ss_password_key), null);
@@ -85,21 +89,15 @@ public class Utils {
     }
 
     public static MediaInfo buildMediaInfo(String channel, String studio, String url, String iconUrl) {
-        final String SMOOTHSTREAMS_ICON_PREFIX = "http://smoothstreams.tv/schedule/includes/images/uploads/";
-        final String SMOOTHSTREAMS_LOGO =
-                "https://pbs.twimg.com/profile_images/378800000147953484/7af5bfc30ff182f852da32be5af79dfd.jpeg";
-        final String CONTENT_TYPE = "application/x-mpegurl";
-
         MediaMetadata mediaMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_GENERIC);
-
         mediaMetadata.putString(MediaMetadata.KEY_TITLE, channel);
         mediaMetadata.putString(MediaMetadata.KEY_STUDIO, studio);
-        mediaMetadata.addImage(new WebImage(Uri.parse(SMOOTHSTREAMS_ICON_PREFIX + iconUrl)));
-        mediaMetadata.addImage(new WebImage(Uri.parse(SMOOTHSTREAMS_LOGO)));
+        mediaMetadata.addImage(new WebImage(Uri.parse(Constants.SMOOTHSTREAMS_ICON_PREFIX + iconUrl)));
+        mediaMetadata.addImage(new WebImage(Uri.parse(Constants.SMOOTHSTREAMS_LOGO)));
 
         return new MediaInfo.Builder(url)
                 .setStreamType(MediaInfo.STREAM_TYPE_LIVE)
-                .setContentType(CONTENT_TYPE)
+                .setContentType(Constants.CONTENT_TYPE)
                 .setMetadata(mediaMetadata)
                 .build();
     }
@@ -148,12 +146,6 @@ public class Utils {
         // Starting at one to not italic the space
         languageSpannableString.setSpan(imageSpan, 1, languageStr.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
         return languageSpannableString;
-    }
-
-    public static String getCleanTitle(String title) {
-        // For example, Mike &amp; Mike -> Mike & Mike
-        String cleanTitle = title.replace("&amp;", "&");
-        return cleanTitle;
     }
 
     public static boolean isInternetAvailable(Context context) {

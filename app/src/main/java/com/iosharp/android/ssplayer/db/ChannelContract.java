@@ -4,7 +4,8 @@ import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-import java.text.SimpleDateFormat;
+import com.iosharp.android.ssplayer.Constants;
+
 import java.util.Date;
 
 public class ChannelContract {
@@ -14,21 +15,17 @@ public class ChannelContract {
 
     public static final String PATH_EVENT = "event";
     public static final String PATH_CHANNEL = "channel";
-    public static final String DATE_FORMAT = "yyyyMMdd";
 
     public static String getDbDateString(long unixTimestamp) {
         Date date = new Date(unixTimestamp);
         date.setHours(0);
         date.setMinutes(0);
         date.setSeconds(0);
-
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-        return sdf.format(date);
+        return Constants.CONDENSED_DATE_FORMAT.format(date);
     }
 
     public static String getDbDateString(Date date){
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-        return sdf.format(date);
+        return Constants.CONDENSED_DATE_FORMAT.format(date);
     }
 
     public static final class EventEntry implements BaseColumns {

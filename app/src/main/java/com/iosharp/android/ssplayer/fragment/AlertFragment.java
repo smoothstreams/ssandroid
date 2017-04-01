@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.iosharp.android.ssplayer.Constants;
 import com.iosharp.android.ssplayer.PlayerApplication;
 import com.iosharp.android.ssplayer.R;
 import com.iosharp.android.ssplayer.service.SmoothService;
@@ -33,8 +34,6 @@ public class AlertFragment extends DialogFragment {
     public static final String BUNDLE_CHANNEL = "channel";
     public static final String BUNDLE_TIME = "time";
     public static final String BUNDLE_ID = "id";
-
-    public static final String TIME_FORMAT = "EEE MMM dd yyyy HH:mm";
 
     private String mSelectedValue;
     private int mId;
@@ -124,7 +123,7 @@ public class AlertFragment extends DialogFragment {
         channelView.setText(String.valueOf(mEventChannel));
 
         TextView timeView = (TextView) view.findViewById(R.id.alert_dialog_event_time_field);
-        timeView.setText(Utils.formatLongToString(mEventTime, TIME_FORMAT));
+        timeView.setText(Utils.formatLongToString(mEventTime, Constants.YEAR_TIME_FORMAT));
 
         Spinner spinner = (Spinner) view.findViewById(R.id.alert_dialog_spinner);
 

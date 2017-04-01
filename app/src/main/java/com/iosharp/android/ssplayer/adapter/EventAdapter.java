@@ -14,8 +14,8 @@ import android.widget.TextView;
 
 import com.applidium.headerlistview.SectionAdapter;
 import com.crashlytics.android.Crashlytics;
+import com.iosharp.android.ssplayer.Constants;
 import com.iosharp.android.ssplayer.R;
-import com.iosharp.android.ssplayer.db.ChannelContract;
 import com.iosharp.android.ssplayer.fragment.AlertFragment;
 import com.iosharp.android.ssplayer.model.Event;
 import com.iosharp.android.ssplayer.utils.Utils;
@@ -29,6 +29,7 @@ public class EventAdapter extends SectionAdapter {
     private Context mContext;
     private ArrayList<ArrayList<Event>> mDateEvents;
     private ArrayList<String> mDate;
+    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("HH:mm");
 
     public EventAdapter(Context context, ArrayList<String> date, ArrayList<ArrayList<Event>> dateEvents) {
         mContext = context;
@@ -74,12 +75,11 @@ public class EventAdapter extends SectionAdapter {
         }
 
         Event e = getRowItem(section, row);
-        String channel = String.format("%02d", e.getChannel());
+        String channel = Utils.twoDigitsString(e.getChannel());
         String quality = e.getQuality();
         String language = e.getLanguage();
 
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-        String time = sdf.format(new Date(e.getStartDate()));
+        String time = SIMPLE_DATE_FORMAT.format(new Date(e.getStartDate()));
 
         rowViewHolder.tvChannel.setText(channel);
         rowViewHolder.tvTime.setText(time);
@@ -146,7 +146,7 @@ public class EventAdapter extends SectionAdapter {
 
     @Override
     public View getSectionHeaderView(int section, View convertView, ViewGroup parent) {
-        SectionHeaderViewHolder sectionHeaderViewHolder = null;
+        SectionHeaderViewHolder sectionHeaderViewHolder;
 
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -177,13 +177,9 @@ public class EventAdapter extends SectionAdapter {
 
     private String getFormattedDate(String date) {
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat(ChannelContract.DATE_FORMAT);
-            Date newDate = sdf.parse(date);
-
+            Date newDate = Constants.CONDENSED_DATE_FORMAT.parse(date);
             SimpleDateFormat desiredDateFormat = new SimpleDateFormat("dd-MM-yyyy");
-            String newDateString = desiredDateFormat.format(newDate);
-
-            return newDateString;
+            return desiredDateFormat.format(newDate);
         } catch (ParseException e) {
             Crashlytics.logException(e);
         }

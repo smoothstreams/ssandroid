@@ -11,7 +11,6 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
 import android.provider.SearchRecentSuggestions;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
@@ -29,8 +28,6 @@ import com.iosharp.android.ssplayer.utils.Utils;
 
 
 public class SettingsActivity extends ActionBarActivity {
-
-    private static final int INDEX_SERVERS = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +59,7 @@ public class SettingsActivity extends ActionBarActivity {
 
             addPreferencesFromResource(R.xml.preferences);
 
-            Preference clearHistory = (Preference) findPreference(getString(R.string.pref_clear_search_history_key));
+            Preference clearHistory = findPreference(getString(R.string.pref_clear_search_history_key));
             clearHistory.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {

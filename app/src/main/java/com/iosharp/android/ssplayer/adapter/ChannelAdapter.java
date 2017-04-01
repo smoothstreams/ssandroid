@@ -62,7 +62,7 @@ public class ChannelAdapter extends CursorAdapter {
         String channelIcon = cursor.getString(ChannelListFragment.COL_CHANNEL_ICON);
 
 
-        if (channelIcon != null || !channelIcon.equalsIgnoreCase("")) {
+        if (channelIcon != null && !channelIcon.isEmpty()) {
             String SMOOTHSTREAMS_ICON_URL = SMOOTHSTREAMS_ICON_BASE + channelIcon;
 
             Picasso.with(context)
@@ -84,7 +84,7 @@ public class ChannelAdapter extends CursorAdapter {
             String language = cursor.getString(ChannelListFragment.COL_EVENT_LANGUAGE);
             String quality = cursor.getString(ChannelListFragment.COL_EVENT_QUALITY);
 
-            if (title != null || !title.equalsIgnoreCase("")) {
+            if (title != null && !title.isEmpty()) {
 
                 if (now.after(startDate) && now.before(endDate)) {
                     SpannableString qualitySpannableString = new SpannableString("");

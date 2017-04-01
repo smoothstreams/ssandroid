@@ -15,7 +15,7 @@ import com.iosharp.android.ssplayer.activity.SearchableActivity;
 import com.iosharp.android.ssplayer.utils.Utils;
 
 public class ResultAdapter extends CursorAdapter {
-    public static final String TIME_FORMAT = "EEE MMM dd HH:mm";
+    private static final String TIME_FORMAT = "EEE MMM dd HH:mm";
 
     public ResultAdapter(Context context, Cursor c, boolean autoRequery) {
         super(context, c, autoRequery);
@@ -52,7 +52,7 @@ public class ResultAdapter extends CursorAdapter {
         String title = cursor.getString(SearchableActivity.COL_EVENT_NAME);
         String category = cursor.getString(SearchableActivity.COL_EVENT_CATEGORY);
         long startDate = cursor.getLong(SearchableActivity.COL_EVENT_START_DATE);
-        String channel = String.format("%02d", cursor.getInt(SearchableActivity.COL_EVENT_CHANNEL));
+        String channel = Utils.twoDigitsString(cursor.getInt(SearchableActivity.COL_EVENT_CHANNEL));
 
         SpannableString qualitySpannableString = new SpannableString("");
         SpannableString languageSpannableString = new SpannableString("");

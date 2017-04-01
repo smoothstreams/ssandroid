@@ -31,7 +31,6 @@ public class EventListFragment extends Fragment {
     private static ArrayList<String> mDate;
     private static EventAdapter mAdapter;
     private VideoCastManager mCastManager;
-    private MiniController mMini;
 
     public EventListFragment() {
 
@@ -93,8 +92,6 @@ public class EventListFragment extends Fragment {
             if (dateCursor != null) {
                 dateCursor.close();
             }
-        } catch (NullPointerException e) {
-            Crashlytics.logException(e);
         } catch (Exception e) {
             Crashlytics.logException(e);
         }
@@ -146,7 +143,7 @@ public class EventListFragment extends Fragment {
 
         //MiniController
         if (mCastManager != null) {
-            mMini = (MiniController) rootView.findViewById(R.id.miniController_event);
+            MiniController mMini = (MiniController) rootView.findViewById(R.id.miniController_event);
             mCastManager.addMiniController(mMini);
         }
 

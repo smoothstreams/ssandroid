@@ -2,7 +2,6 @@ package com.iosharp.android.ssplayer;
 
 import android.test.AndroidTestCase;
 
-import com.iosharp.android.ssplayer.fragment.AlertFragment;
 import com.iosharp.android.ssplayer.utils.Utils;
 
 import java.util.Date;
@@ -17,7 +16,7 @@ public class TestUtils extends AndroidTestCase {
         date.setMinutes(0);
         date.setSeconds(0);
 
-        String result = Utils.formatLongToString(date.getTime(), AlertFragment.TIME_FORMAT);
+        String result = Utils.formatLongToString(date.getTime(), Constants.YEAR_TIME_FORMAT);
 
         assertEquals(desiredResult, result);
     }

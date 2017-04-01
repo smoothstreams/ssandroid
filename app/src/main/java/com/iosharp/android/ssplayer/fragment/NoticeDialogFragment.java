@@ -32,7 +32,7 @@ public class NoticeDialogFragment extends DialogFragment {
                             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
                             SharedPreferences.Editor editor = sharedPreferences.edit();
                             editor.putBoolean(getString(R.string.pref_protocol_notice_checkbox_key), false);
-                            editor.commit();
+                            editor.apply();
                         }
                         dismiss();
                     }
