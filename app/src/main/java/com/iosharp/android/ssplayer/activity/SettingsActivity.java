@@ -12,7 +12,7 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.provider.SearchRecentSuggestions;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import com.google.android.gms.analytics.HitBuilders;
@@ -21,13 +21,11 @@ import com.iosharp.android.ssplayer.PlayerApplication;
 import com.iosharp.android.ssplayer.R;
 import com.iosharp.android.ssplayer.db.SearchSuggestionsProvider;
 import com.iosharp.android.ssplayer.fragment.NoticeDialogFragment;
-import com.iosharp.android.ssplayer.tasks.FetchLoginInfoTask;
-import com.iosharp.android.ssplayer.utils.Utils;
 
 
 
 
-public class SettingsActivity extends ActionBarActivity {
+public class SettingsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,10 +51,7 @@ public class SettingsActivity extends ActionBarActivity {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-
-            PreferenceManager.setDefaultValues(getActivity(), R.xml.preferences,
-                    false);
-
+            PreferenceManager.setDefaultValues(getActivity(), R.xml.preferences, false);
             addPreferencesFromResource(R.xml.preferences);
 
             Preference clearHistory = findPreference(getString(R.string.pref_clear_search_history_key));
@@ -80,42 +75,21 @@ public class SettingsActivity extends ActionBarActivity {
         @Override
         public void onResume() {
             super.onResume();
-            getPreferenceScreen().getSharedPreferences()
-                    .registerOnSharedPreferenceChangeListener(this);
+            getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
         }
 
         @Override
         public void onPause() {
             super.onPause();
-            getPreferenceScreen().getSharedPreferences()
-                    .unregisterOnSharedPreferenceChangeListener(this);
+            getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
         }
 
         @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-                                              String key) {
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             updatePreferenceSummary(findPreference(key));
-
-            // Check only if one of the three below keys is changed to call method
-            // to get service id and password
-            if (key.equals(getString(R.string.pref_service_key))
-                    || key.equals(getString(R.string.pref_service_username_key))
-                    || key.equals(getString(R.string.pref_service_password_key))) {
-
-                if (hasSetServiceDetails() && Utils.isInternetAvailable(getActivity())) {
-
-                    FetchLoginInfoTask fetchLoginInfoTask = new FetchLoginInfoTask(getActivity());
-                    fetchLoginInfoTask.execute();
-                }
-            }
-            //StreamTVnow only works on certain servers.
-            if (key.equals(getString(R.string.pref_service_key))) {
-
-                ListPreference servers = (ListPreference) findPreference(getString(R.string.pref_server_key));
-                servers.setEntries(R.array.list_servers);
-                servers.setEntryValues(R.array.list_servers_values);
-
-            }
+            ListPreference servers = (ListPreference) findPreference(getString(R.string.pref_server_key));
+            servers.setEntries(R.array.list_servers);
+            servers.setEntryValues(R.array.list_servers_values);
 
             if (key.equals(getString(R.string.pref_protocol_key))) {
                 // check checkbox key to see if we should bother showing dialog
@@ -170,34 +144,7 @@ public class SettingsActivity extends ActionBarActivity {
                 p.setSummary(editTextPref.getText());
             }
         }
-
-        /**
-         * Checks to see if all needed fields for retrieving service id and username
-         * are filled out.
-         *
-         * @return boolean
-         */
-        private boolean hasSetServiceDetails() {
-            SharedPreferences prefs = PreferenceManager
-                    .getDefaultSharedPreferences(getActivity());
-
-            String username = prefs.getString(getString(R.string.pref_service_username_key), null);
-            String password = prefs.getString(getString(R.string.pref_service_password_key), null);
-            String service = prefs.getString(getString(R.string.pref_service_key), null);
-
-            if (username == null || password == null || service == null) {
-                return false;
-            } else {
-                return true;
-            }
-        }
-
     }
-
-
-
-
-
 
 }
 

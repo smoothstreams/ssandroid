@@ -2,6 +2,7 @@ package com.iosharp.android.ssplayer;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -11,10 +12,17 @@ import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 import com.google.android.libraries.cast.companionlibrary.cast.CastConfiguration;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
+import com.iosharp.android.ssplayer.activity.LoginActivity;
+import com.iosharp.android.ssplayer.events.LoginEvent;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.HashMap;
 
 public class PlayerApplication extends Application {
+    private static Context applicationContext;
     private static String sApplicationId;
     private static final String PROPERTY_ID = "UA-57141244-1";
     private static VideoCastManager sCastMgr = null;
@@ -90,7 +98,23 @@ public class PlayerApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        EventBus.getDefault().register(this);
         sApplicationId = getString(R.string.chromecast_app_id);
+        applicationContext = getApplicationContext();
         initializeCastManager();
+    }
+
+    public static Context getAppContext() {
+        return applicationContext;
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onLoginFailed(LoginEvent event) {
+        Intent intent = new Intent(this, LoginActivity.class);
+        String error = event.getError();
+        if (null != error) {
+            intent.putExtra(LoginActivity.EXTRA_ERROR, error);
+        }
+        startActivity(intent);
     }
 }

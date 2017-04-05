@@ -128,6 +128,12 @@
             <meta-data android:name="android.app.searchable"
                        android:resource="@xml/searchable"/>
         </activity>
+
+        <activity
+            android:name=".activity.LoginActivity"
+            android:label="@string/login"
+            android:theme="@style/Theme.AppCompat.Light.Dialog"
+            />
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="f8fc54aeaf7c770f1a6d8411e3eea2def5d79881" />

@@ -45,8 +45,9 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:25.0.0'
-    compile 'com.android.support:support-v4:25.0.0'
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:support-v4:25.3.1'
+    compile 'com.android.support:design:25.3.1'
     compile 'com.google.android.gms:play-services-analytics:9.8.0'
     compile 'com.github.applidium:HeaderListView:-SNAPSHOT'
     compile 'com.google.android.libraries.cast.companionlibrary:ccl:2.9.1'
@@ -56,4 +57,5 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.5.3@aar') {
         transitive = true;
     }
+    compile 'org.greenrobot:eventbus:3.0.0'
 }

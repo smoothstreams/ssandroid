@@ -32,7 +32,10 @@ public class StreamUrl {
 
         String streamQuality = quality ? "1" : "2";
 
-        Service serviceMapping = new Service(service);
+        //TODO
+        if (!Service.hasActive()) throw new IllegalStateException("Service is not selected");
+
+        Service serviceMapping = Service.getCurrent();
         String port = (protocol == 0) ? serviceMapping.getHtmlPort() : serviceMapping.getRTPort();
         String servicePath = serviceMapping.getView();
 

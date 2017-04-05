@@ -178,5 +178,16 @@
     <string name="alert_successful">Alert created!</string>
     <string name="title_activity_searchable">Search</string>
     <string name="button_disable_debug">Disable debug mode</string>
+    <string name="next">Next</string>
+    <string name="username">Username</string>
+    <string name="service">Service</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="no_service_selected">No service selected to login</string>
+    <string name="error_username_empty">Enter valid username</string>
+    <string name="error_password_empty">Enter valid password</string>
+    <string name="error_form_incomplete">Please complete the form</string>
+    <string name="error_unknown_response">Unknown response, please try again or verify your internet connection</string>
+    <string name="not_logged_in">Not logged in</string>
 
 </resources>

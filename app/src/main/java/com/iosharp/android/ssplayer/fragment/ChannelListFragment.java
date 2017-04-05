@@ -28,8 +28,10 @@ import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.widgets.MiniController;
 import com.iosharp.android.ssplayer.PlayerApplication;
 import com.iosharp.android.ssplayer.R;
-import com.iosharp.android.ssplayer.activity.SettingsActivity;
+import com.iosharp.android.ssplayer.activity.LoginActivity;
 import com.iosharp.android.ssplayer.adapter.ChannelAdapter;
+import com.iosharp.android.ssplayer.data.Service;
+import com.iosharp.android.ssplayer.data.User;
 import com.iosharp.android.ssplayer.utils.StreamUrl;
 import com.iosharp.android.ssplayer.utils.Utils;
 import com.iosharp.android.ssplayer.videoplayer.VideoActivity;
@@ -79,6 +81,9 @@ public class ChannelListFragment extends Fragment implements LoaderManager.Loade
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (Service.hasActive() && User.hasActive() && !User.getCurrentUser().hasActiveHash()) {
+            Utils.revalidateCredentials(getActivity(), new Utils.OnRevalidateTaskCompleteListener.Silent());
+        }
     }
 
     private static boolean getDebugMode(Context context) {
@@ -157,16 +162,23 @@ public class ChannelListFragment extends Fragment implements LoaderManager.Loade
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                Cursor c = (Cursor) mAdapter.getItem(position);
-                c.moveToPosition(position);
+            public void onItemClick(final AdapterView<?> adapterView, final View view, final int position, final long l) {
+                if (Service.hasActive() && User.hasActive()) {
+                    if (!User.getCurrentUser().hasActiveHash()) {
+                        Utils.revalidateCredentials(view.getContext(), new Utils.OnRevalidateTaskCompleteListener() {
+                            @Override
+                            public void success(String result) {
+                                onItemClick(adapterView, view, position, l);
+                            }
+                        });
+                    }
+                    Cursor c = (Cursor) mAdapter.getItem(position);
+                    c.moveToPosition(position);
 
-                // Get channel details
-                mChannelId = c.getInt(COL_CHANNEL_ID);
-                String channelName = c.getString(COL_CHANNEL_NAME);
-                String channelIcon = c.getString(COL_CHANNEL_ICON);
-
-                if (Utils.checkForSetServiceCredentials(getActivity())) {
+                    // Get channel details
+                    mChannelId = c.getInt(COL_CHANNEL_ID);
+                    String channelName = c.getString(COL_CHANNEL_NAME);
+                    String channelIcon = c.getString(COL_CHANNEL_ICON);
 
                     // Create MediaInfo based off channel
                     String url;
@@ -184,7 +196,7 @@ public class ChannelListFragment extends Fragment implements LoaderManager.Loade
                     if (getDebugMode(getActivity())) {
                         // If debug mode is enabled, we do not want to launch a stream instead in a toast put the URL
                         Toast.makeText(getActivity(), "=====DEBUG MODE!=====\nURL: " + url + " copied to clipboard!"
-                                , Toast.LENGTH_LONG).show();
+                            , Toast.LENGTH_LONG).show();
 
                         ClipboardManager clipboardManager = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
                         ClipData streamUrl = ClipData.newPlainText("url", url);
@@ -195,12 +207,8 @@ public class ChannelListFragment extends Fragment implements LoaderManager.Loade
                         handleNavigation(getActivity(), mediaInfo);
                     }
                 } else {
-                    // Launch settings
-                    Intent intent = new Intent(getActivity(), SettingsActivity.class);
-                    getActivity().startActivity(intent);
-                    Toast.makeText(getActivity(),
-                            "ERROR: No login credentials found! Set your login and password first.",
-                            Toast.LENGTH_LONG).show();
+                    Context context = view.getContext();
+                    context.startActivity(new Intent(context, LoginActivity.class));
                 }
             }
         });

@@ -1,23 +1,22 @@
 package com.iosharp.android.ssplayer.tasks;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.iosharp.android.ssplayer.Constants;
 import com.iosharp.android.ssplayer.PlayerApplication;
 import com.iosharp.android.ssplayer.R;
 import com.iosharp.android.ssplayer.data.Service;
+import com.iosharp.android.ssplayer.data.User;
+import com.iosharp.android.ssplayer.events.LoginEvent;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -30,46 +29,44 @@ public class FetchLoginInfoTask extends AsyncTask<Void, Void, Void> {
     private static final String PASSWORD_PARAM = "password";
     private static final String SITE_PARAM = "site";
 
-    private SharedPreferences mSharedPreferences;
     private Context mContext;
 
     private String mUsername;
     private String mPassword;
+    private OnTaskCompleteListener<String> listener;
     private String mService;
     private boolean isRevalidating = false;
+    private JSONObject json = null;
 
-    public FetchLoginInfoTask(Context context, boolean isRevalidating) {
-        this(context);
-        this.isRevalidating = isRevalidating;
-    }
-
-    public FetchLoginInfoTask(Context context) {
+    public FetchLoginInfoTask(Context context, OnTaskCompleteListener<String> listener) {
+        if (!Service.hasActive() || !User.hasActive()) throw new IllegalStateException("Service is not selected");
         mContext = context;
-
-        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-
-        mUsername = mSharedPreferences.getString(mContext.getString(R.string.pref_service_username_key), null);
-        mPassword = mSharedPreferences.getString(mContext.getString(R.string.pref_service_password_key), null);
-        mService = mSharedPreferences.getString(mContext.getString(R.string.pref_service_key), null);
-
-        mUsername = mUsername.trim();
-        mPassword = mPassword.trim();
-        mService = mService.trim();
+        mService = Service.getCurrent().getId();
+        User user = User.getCurrentUser();
+        mUsername = user.getUsername();
+        mPassword = user.getPassword();
+        isRevalidating = true;
+        this.listener = listener;
     }
+
+    public FetchLoginInfoTask(Context context, String userName, String password, String service, OnTaskCompleteListener<String> listener) {
+        mContext = context;
+        mService = service;
+        mUsername = userName;
+        mPassword = password;
+        this.listener = listener;
+    }
+
 
     @Override
     protected Void doInBackground(Void... voids) {
-        setServiceCredentials((long) 0, "");
         final String USER_AGENT = PlayerApplication.getUserAgent(mContext);
-
         final OkHttpClient client = new OkHttpClient();
-        String loginJsonStr = null;
-
         try {
             String builtUrl = (mService.contains("mma") ? Constants.AUTH_MMA_URL : Constants.AUTH_SS_URL) + "?"
                     + USERNAME_PARAM + "=" + Uri.encode(mUsername) + "&"
                     + PASSWORD_PARAM + "=" + Uri.encode(mPassword) + "&"
-                    + SITE_PARAM + "=" + new Service(mService).getView();
+                    + SITE_PARAM + "=" + Service.getService(mService).getView();
 
             URL url = new URL(builtUrl);
 
@@ -79,68 +76,60 @@ public class FetchLoginInfoTask extends AsyncTask<Void, Void, Void> {
                     .build();
 
             Response response = client.newCall(request).execute();
-
-            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-
-            loginJsonStr = response.body().string();
-        } catch (IOException e) {
+            if (response.isSuccessful()) {
+                json = new JSONObject(response.body().string());
+            } else {
+                //TODO: handle Internet errors
+                throw new IOException("Unexpected code " + response);
+            }
+        } catch (JSONException|IOException e) {
             Crashlytics.logException(e);
+            Log.w(getClass().getSimpleName(), e.getLocalizedMessage(), e);
         }
-
-        parseLoginResponse(loginJsonStr);
         return null;
     }
 
-    private void parseLoginResponse(String responseStr) {
-        try {
 
-            JSONObject response = new JSONObject(responseStr);
-            if (response.has("error")) {
-                String message = response.getString("error");
-                if (!isRevalidating) {
-                    showToastMethod("ERROR: " + message);
+    @Override
+    protected void onPostExecute(Void aVoid) {
+        super.onPostExecute(aVoid);
+        try {
+            if (json.has("error")) {
+                String message = json.getString("error");
+                if (!isRevalidating && listener != null) {
+                    listener.error(message);
                 } else {
-                    showToastMethod("Unable to Revalidate \nERROR: " + message);
+                    postLoginFailed(message);
                 }
-            } else if (response.has("hash")) {
-                String password = response.getString("hash");
-                Integer validMinutes = response.getInt("valid") - 5; //subtract 5 minutes for good measure
+            } else if (json.has("hash")) {
+                String password = json.getString("hash");
+                Integer validMinutes = json.getInt("valid") - 5; //subtract 5 minutes for good measure
                 long curTime = System.currentTimeMillis();
                 Long endTime = curTime + (validMinutes * 60 * 1000);
-                setServiceCredentials(endTime, password);
-                if (!isRevalidating)
-                    showToastMethod("Login Successful");
-
+                Service.setCurrent(Service.getService(mService));
+                User.newUser(mUsername, mPassword).updateHash(endTime, password);
+                if (null != listener){
+                    listener.success(mUsername);
+                }
+                EventBus.getDefault().post(new LoginEvent(LoginEvent.Type.Success));
             } else {
-                showToastMethod("ERROR: Unknown response!");
-                Log.e(TAG, "Unknown response!");
+                Log.e(TAG, "Unknown response!\n"+json);
+                String error = mContext.getString(R.string.error_unknown_response);
+                if (isRevalidating) {
+                    postLoginFailed(error);
+                } else {
+                    if (listener != null) {
+                        listener.error(error);
+                    }
+                }
             }
         } catch (JSONException e) {
             Crashlytics.logException(e);
         }
     }
 
-    private void setServiceCredentials(Long endTime, String password) {
-        SharedPreferences.Editor mEditor = mSharedPreferences.edit();
-        mEditor.putLong(mContext.getString(R.string.pref_ss_valid_key), endTime);
-        mEditor.putString(mContext.getString(R.string.pref_ss_password_key), password);
-        mEditor.apply();
-        Log.i(TAG,
-                "SUCCESS: Valid Until: " + endTime.toString()
-                        + ", servicePassword: "
-                        + password.replaceAll(".", "*"));
-
-    }
-
-    private void showToastMethod(String text) {
-        final String toastText = text;
-        Handler handler = new Handler(mContext.getMainLooper());
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(mContext, toastText, Toast.LENGTH_LONG).show();
-            }
-        });
+    private void postLoginFailed(String message) {
+        EventBus.getDefault().post(new LoginEvent(message));
     }
 
 }

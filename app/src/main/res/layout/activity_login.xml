@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="200dp"
+              android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="96dp"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="@string/login"
+        android:alpha="0.5"
+        android:src="@drawable/person"/>
+
+    <TextView
+        android:id="@+id/error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="#f00"
+        android:text=""
+        android:visibility="gone"
+        />
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        />
+
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.iosharp.android.ssplayer.ui.Spinner
+            android:id="@+id/service"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text|textNoSuggestions"
+            android:imeOptions="actionNext"
+            android:imeActionLabel="@string/next"
+            android:lines="1"
+            android:singleLine="true"
+            android:hint="@string/service" />
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text|textNoSuggestions"
+            android:imeOptions="actionNext"
+            android:imeActionLabel="@string/next"
+            android:lines="1"
+            android:singleLine="true"
+            android:hint="@string/username"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword|textNoSuggestions"
+            android:imeOptions="actionNext"
+            android:imeActionLabel="@string/next"
+            android:lines="1"
+            android:singleLine="true"
+            android:hint="@string/password"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+    <Button
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:id="@+id/submit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/login"/>
+
+</LinearLayout>

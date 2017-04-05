@@ -1,23 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="@string/preferences_login_settings">
-        <ListPreference
-            android:defaultValue="@string/pref_service_default_value"
-            android:entries="@array/list_services"
-            android:entryValues="@array/list_services_values"
-            android:key="@string/pref_service_key"
-            android:title="@string/preferences_service"/>
-
-        <EditTextPreference
-            android:inputType="textNoSuggestions"
-            android:key="@string/pref_service_username_key"
-            android:title="@string/preferences_username"/>
-        <EditTextPreference
-            android:inputType="textPassword"
-            android:key="@string/pref_service_password_key"
-            android:title="@string/preferences_password"/>
-    </PreferenceCategory>
     <PreferenceCategory android:title="@string/preferences_stream_settings">
         <ListPreference
             android:defaultValue="@string/pref_server_default_value"

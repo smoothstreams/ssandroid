@@ -3,4 +3,5 @@ gradle
 .idea
 **/build
 **/*.iml
+**/*.apk
 signature

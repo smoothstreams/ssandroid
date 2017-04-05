@@ -1,12 +1,11 @@
 package com.iosharp.android.ssplayer.utils;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.DynamicDrawableSpan;
@@ -21,7 +20,13 @@ import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.common.images.WebImage;
 import com.iosharp.android.ssplayer.Constants;
 import com.iosharp.android.ssplayer.R;
+import com.iosharp.android.ssplayer.data.Service;
+import com.iosharp.android.ssplayer.data.User;
+import com.iosharp.android.ssplayer.events.LoginEvent;
 import com.iosharp.android.ssplayer.tasks.FetchLoginInfoTask;
+import com.iosharp.android.ssplayer.tasks.OnTaskCompleteListener;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,11 +35,15 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
-import java.util.concurrent.ExecutionException;
 
 public class Utils {
 
     private static final String TAG = Utils.class.getSimpleName();
+    @SuppressLint("SimpleDateFormat")
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    static {
+        DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("EST"));
+    }
 
     public static String formatLongToString(long date, String pattern) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
@@ -42,14 +51,9 @@ public class Utils {
     }
 
     public static Long convertDateToLong(String dateString) {
-        SimpleDateFormat dateFormat;
-        // For the start/end datetime
-        dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        dateFormat.setTimeZone(TimeZone.getTimeZone("EST"));
-
-        Date convertedDate = new Date();
+        Date convertedDate;
         try {
-            convertedDate = dateFormat.parse(dateString);
+            convertedDate = DATE_FORMAT.parse(dateString);
             // If we adjust justDate for DST, we could be an hour behind and the date is not correct.
             if (isDst()) {
                 return adjustForDst(convertedDate);
@@ -65,27 +69,25 @@ public class Utils {
         return String.format(Locale.US, "%02d", number);
     }
 
-    public static boolean checkForSetServiceCredentials(Context c) {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(c);
-        Long validTime = sharedPreferences.getLong(c.getString(R.string.pref_ss_valid_key),0);
-        String password = sharedPreferences.getString(c.getString(R.string.pref_ss_password_key), null);
-
-        if (password != null) {
-            long curTime = System.currentTimeMillis();
-            if(curTime>=validTime){
-                FetchLoginInfoTask loginTask = new FetchLoginInfoTask(c, true);
-                try {
-                    loginTask.execute().get();
-                } catch (InterruptedException|ExecutionException e) {
-                    e.printStackTrace();
-                }
-                password = sharedPreferences.getString(c.getString(R.string.pref_ss_password_key), null);
-                if(password==null)
-                    return false;
+    public static abstract class OnRevalidateTaskCompleteListener implements OnTaskCompleteListener<String> {
+        public static class Silent extends OnRevalidateTaskCompleteListener {
+            @Override
+            public void success(String result) {
+                //do nothing
             }
-            return true;
         }
-        return false;
+        @Override
+        public void error(String error) {
+            EventBus.getDefault().post(new LoginEvent(error)); //show login form
+        }
+    }
+
+    public static void revalidateCredentials(Context c, OnRevalidateTaskCompleteListener listener) {
+        if (!Service.hasActive() || !User.hasActive()) {
+            EventBus.getDefault().post(new LoginEvent(LoginEvent.Type.Failed)); //show login form
+        } else {
+            new FetchLoginInfoTask(c, listener).execute();
+        }
     }
 
     public static MediaInfo buildMediaInfo(String channel, String studio, String url, String iconUrl) {
@@ -154,8 +156,9 @@ public class Utils {
                 .getActiveNetworkInfo();
 
         if (info == null) {
-            Toast.makeText(context, context.getString(R.string.no_internet_connection_detected), Toast.LENGTH_LONG).show();
-            Log.e(TAG, context.getString(R.string.no_internet_connection_detected));
+            String message = context.getString(R.string.no_internet_connection_detected);
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+            Log.e(TAG, message);
             return false;
         }
         return true;

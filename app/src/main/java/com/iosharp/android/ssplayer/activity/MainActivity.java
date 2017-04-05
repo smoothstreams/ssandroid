@@ -11,7 +11,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -26,19 +26,24 @@ import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.iosharp.android.ssplayer.BuildConfig;
 import com.iosharp.android.ssplayer.PlayerApplication;
 import com.iosharp.android.ssplayer.R;
+import com.iosharp.android.ssplayer.data.User;
+import com.iosharp.android.ssplayer.events.LoginEvent;
 import com.iosharp.android.ssplayer.fragment.ChannelListFragment;
 import com.iosharp.android.ssplayer.fragment.EventListFragment;
 import com.iosharp.android.ssplayer.service.SmoothService;
 import com.iosharp.android.ssplayer.utils.Utils;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import io.fabric.sdk.android.Fabric;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
+    private final static String[] TAB_TITLES = {"Channels", "Events"};
     private VideoCastManager mCastManager;
     private Tracker mTracker;
-
-    final String[] TAB_TITLES = {"Channels",
-            "Events"};
+    private MenuItem loginItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +69,13 @@ public class MainActivity extends ActionBarActivity {
             mCastManager.reconnectSessionIfPossible();
 
         }
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
     }
 
     private void googleAnalytics() {
@@ -148,6 +160,12 @@ public class MainActivity extends ActionBarActivity {
         searchView.setQueryRefinementEnabled(true);
         searchView.setIconifiedByDefault(false);
 
+        loginItem = menu.findItem(R.id.action_login);
+        if (User.hasActive()) {
+            loginItem.setTitle(User.getCurrentUser().getUsername());
+        } else {
+            loginItem.setIcon(R.drawable.ic_action_loged_out);
+        }
         if (mCastManager != null) {
             mCastManager.addMediaRouterButton(menu, R.id.media_route_menu_item);
         }
@@ -167,13 +185,30 @@ public class MainActivity extends ActionBarActivity {
         } else if (id == R.id.action_about) {
             startActivity(new Intent(getApplicationContext(), AboutActivity.class));
             return true;
+        } else if (id == R.id.action_login) {
+            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    class ViewPagerAdapter extends FragmentPagerAdapter {
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onLoginEvent(LoginEvent event) {
+        if (null != loginItem) {
+            int type = event.getType();
+            if (type == LoginEvent.Type.Failed) {
+                loginItem.setIcon(R.drawable.ic_action_loged_out);
+                loginItem.setTitle(R.string.not_logged_in);
+            } else if (type == LoginEvent.Type.Success) {
+                loginItem.setIcon(R.drawable.ic_action_login);
+                loginItem.setTitle(User.getCurrentUser().getUsername());
+            }
+        }
+    }
 
-        public ViewPagerAdapter(FragmentManager fm) {
+    private class ViewPagerAdapter extends FragmentPagerAdapter {
+
+        private ViewPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
@@ -198,6 +233,7 @@ public class MainActivity extends ActionBarActivity {
             return TAB_TITLES.length ;
         }
 
-        }
+    }
+
 
 }
