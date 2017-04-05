@@ -58,6 +58,12 @@ public class Service implements Spinner.Listable {
 
     public static void setCurrent(Service current) {
         currentService = current;
+        Context c = PlayerApplication.getAppContext();
+        PreferenceManager.getDefaultSharedPreferences(c)
+            .edit()
+            .putString(c.getString(R.string.pref_service_key), current.getId())
+            .apply();
+
     }
 
     public static Service getService(String id) {

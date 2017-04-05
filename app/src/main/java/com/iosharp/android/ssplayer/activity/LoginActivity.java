@@ -47,8 +47,8 @@ public class LoginActivity extends AppCompatActivity {
                 progress.setVisibility(View.VISIBLE);
                 new FetchLoginInfoTask(
                     v.getContext(),
-                    username.getText().toString(),
-                    password.getText().toString(),
+                    username.getText().toString().trim(),
+                    password.getText().toString().trim(),
                     selectedService.getId(),
                     new OnTaskCompleteListener<String>() {
                         @Override

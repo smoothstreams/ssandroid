@@ -75,6 +75,10 @@ public class User {
         return password;
     }
 
+    public String getHash() {
+        return hash;
+    }
+
     public synchronized void updateHash(long endTime, String hash) {
         Context context = PlayerApplication.getAppContext();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);

@@ -84,10 +84,14 @@ public class Utils {
 
     public static void revalidateCredentials(Context c, OnRevalidateTaskCompleteListener listener) {
         if (!Service.hasActive() || !User.hasActive()) {
-            EventBus.getDefault().post(new LoginEvent(LoginEvent.Type.Failed)); //show login form
+            forceLogin();
         } else {
             new FetchLoginInfoTask(c, listener).execute();
         }
+    }
+
+    public static void forceLogin() {
+        EventBus.getDefault().post(new LoginEvent(LoginEvent.Type.Failed)); //show login form
     }
 
     public static MediaInfo buildMediaInfo(String channel, String studio, String url, String iconUrl) {
