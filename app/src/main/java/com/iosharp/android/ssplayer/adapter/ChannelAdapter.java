@@ -84,22 +84,22 @@ public class ChannelAdapter extends CursorAdapter {
             String language = cursor.getString(ChannelListFragment.COL_EVENT_LANGUAGE);
             String quality = cursor.getString(ChannelListFragment.COL_EVENT_QUALITY);
 
-            if (title != null && !title.isEmpty()) {
+            if (title != null && !title.isEmpty() && now.after(startDate) && now.before(endDate)) {
+                SpannableString qualitySpannableString = new SpannableString("");
+                SpannableString languageSpannableString = new SpannableString("");
 
-                if (now.after(startDate) && now.before(endDate)) {
-                    SpannableString qualitySpannableString = new SpannableString("");
-                    SpannableString languageSpannableString = new SpannableString("");
-
-                    if (!language.equals("")) {
-                        languageSpannableString = Utils.getLanguageImg(mContext, language);
-                    }
-                    if (quality.equalsIgnoreCase("720p")) {
-                        qualitySpannableString = Utils.getHighDefBadge();
-                    }
-
-                    viewHolder.eventTitle.setText(TextUtils.concat(title, languageSpannableString, qualitySpannableString));
-                    viewHolder.eventTitle.setVisibility(View.VISIBLE);
+                if (!language.equals("")) {
+                    languageSpannableString = Utils.getLanguageImg(mContext, language);
                 }
+                if (quality.equalsIgnoreCase("720p")) {
+                    qualitySpannableString = Utils.getHighDefBadge();
+                }
+
+                viewHolder.eventTitle.setText(TextUtils.concat(title, languageSpannableString, qualitySpannableString));
+                viewHolder.eventTitle.setVisibility(View.VISIBLE);
+            } else {
+                viewHolder.eventTitle.setText("");
+                viewHolder.eventTitle.setVisibility(View.GONE);
             }
         }
     }

@@ -38,6 +38,20 @@ import static com.iosharp.android.ssplayer.db.ChannelContract.getDbDateString;
 
 public class SmoothService extends IntentService {
     private static final String TAG = SmoothService.class.getSimpleName();
+    private static final String TAG_CHANNEL_NAME = "name";
+    private static final String TAG_CHANNEL_ICON = "img";
+    private static final String TAG_CHANNEL_ITEMS = "items";
+    private static final String TAG_EVENT_ID = "id";
+    private static final String TAG_EVENT_NETWORK = "network";
+    private static final String TAG_EVENT_NAME = "name";
+    private static final String TAG_EVENT_DESCRIPTION = "description";
+    private static final String TAG_EVENT_START_DATE = "time";
+    private static final String TAG_EVENT_END_DATE = "end_time";
+    private static final String TAG_EVENT_RUNTIME = "runtime";
+    private static final String TAG_EVENT_CHANNEL = "channel";
+    private static final String TAG_EVENT_LANGUAGE = "language";
+    private static final String TAG_EVENT_QUALITY = "quality";
+    private static final String TAG_EVENT_CATEGORY = "category";
 
     public SmoothService() {
         super("SmoothService");
@@ -50,9 +64,8 @@ public class SmoothService extends IntentService {
         String channelsJsonStr = null;
 
         try {
-            final String SMOOTHSTREAMS_JSON_FEED = "http://cdn.smoothstreams.tv/schedule/feed.json";
 
-            URL url = new URL(SMOOTHSTREAMS_JSON_FEED);
+            URL url = new URL(Constants.SMOOTHSTREAMS_SCHEDULE_FEED);
 
             Request request = new Request.Builder()
                     .url(url)
@@ -69,25 +82,6 @@ public class SmoothService extends IntentService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        // Channel information
-        final String TAG_CHANNEL_NAME = "name";
-        final String TAG_CHANNEL_ICON = "img";
-
-        // Event information. Each event is an element of the 'items' array
-        final String TAG_CHANNEL_ITEMS = "items";
-
-        final String TAG_EVENT_ID = "id";
-        final String TAG_EVENT_NETWORK = "network";
-        final String TAG_EVENT_NAME = "name";
-        final String TAG_EVENT_DESCRIPTION = "description";
-        final String TAG_EVENT_START_DATE = "time";
-        final String TAG_EVENT_END_DATE = "end_time";
-        final String TAG_EVENT_RUNTIME = "runtime";
-        final String TAG_EVENT_CHANNEL = "channel";
-        final String TAG_EVENT_LANGUAGE = "language";
-        final String TAG_EVENT_QUALITY = "quality";
-        final String TAG_EVENT_CATEGORY = "category";
 
         try {
             long startTime = System.currentTimeMillis();
