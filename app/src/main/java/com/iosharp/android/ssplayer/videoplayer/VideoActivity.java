@@ -51,10 +51,14 @@ public class VideoActivity extends AppCompatActivity  {
     private Tracker mTracker;
     private VideoCastConsumerImpl mCastConsumer;
     private View progress;
+    private boolean surfaceReady = false;
+    private SurfaceHolder surfaceHolder;
 
     private final SurfaceHolder.Callback surfaceCallback = new SurfaceHolder.Callback() {
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
+            surfaceReady = true;
+            surfaceHolder = holder;
             mPlayer.setDisplay(holder);
             mPlayer.prepareAsync();
         }
@@ -63,7 +67,11 @@ public class VideoActivity extends AppCompatActivity  {
         public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {}
 
         @Override
-        public void surfaceDestroyed(SurfaceHolder holder) {}
+        public void surfaceDestroyed(SurfaceHolder holder) {
+            surfaceReady = false;
+            surfaceHolder = null;
+            mPlayer.setDisplay(null);
+        }
     };
 
     private final MediaPlayer.OnPreparedListener mediaPreparedListener = new MediaPlayer.OnPreparedListener() {
@@ -78,20 +86,32 @@ public class VideoActivity extends AppCompatActivity  {
     private final MediaPlayer.OnErrorListener mediaErrorListener = new MediaPlayer.OnErrorListener() {
         @Override
         public boolean onError(MediaPlayer mp, int what, int extra) {
-            //TODO: handle errors properly
             Crashlytics.log(Log.ERROR, "MediaPlayer", String.format("Error(%s, %s)", what, extra));
-            if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
-                mPlayer.reset();
-                //TODO: autoretry
-            } else if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN) {
-                Toast.makeText(getApplicationContext(),
-                    "Unknown media error. Try a different protocol/quality or open in an external player.",
-                    Toast.LENGTH_SHORT).show();
-                mPlayer.reset();
+            switch (what) {
+                case MediaPlayer.MEDIA_ERROR_IO:
+                case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
+                case MediaPlayer.MEDIA_ERROR_SERVER_DIED: {
+                    Log.w(getClass().getSimpleName(), "Recoverable error for "+mURL);
+                    mPlayer.reset();
+                    progress.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            initPlayer();
+                        }
+                    }, 400);
+                    break;
+                }
+                case MediaPlayer.MEDIA_ERROR_MALFORMED:
+                case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
+                case MediaPlayer.MEDIA_ERROR_UNKNOWN:
+                case MediaPlayer.MEDIA_ERROR_UNSUPPORTED: {
+                    Log.w(getClass().getSimpleName(), "Unrecoverable error: "+what);
+                    Toast.makeText(getApplicationContext(),
+                        "Unknown media error. Try a different protocol/quality or open in an external player.",
+                        Toast.LENGTH_LONG).show();
+//                    finish();
+                }
             }
-            //TODO: WHAT>?????
-            mPlayer.setOnErrorListener(this);
-            mPlayer.setOnPreparedListener(mediaPreparedListener);
             return true;
         }
     };
@@ -101,6 +121,14 @@ public class VideoActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         mCastManager = PlayerApplication.getCastManager();
         setContentView(R.layout.activity_video);
+        findViewById(R.id.videoSurfaceContainer).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Log.v(TAG, "onTouchEvent");
+                showActionBar();
+                return false;
+            }
+        });
         progress = findViewById(R.id.progress);
         hideSoftKeys();
 
@@ -118,10 +146,10 @@ public class VideoActivity extends AppCompatActivity  {
             String title = mSelectedMedia.getMetadata().getString(MediaMetadata.KEY_TITLE);
             getSupportActionBar().setTitle(title);
             mURL = mSelectedMedia.getContentId();
-            SurfaceView mSurfaceView = (SurfaceView) findViewById(R.id.videoSurface);
-            mSurfaceView.getHolder().addCallback(surfaceCallback);
             mPlayer = new MediaPlayer();
-            mPlayer.setOnPreparedListener(mediaPreparedListener);
+        } else {
+            Log.w(getClass().getSimpleName(), "You have to start this activity with parameters. Exiting.");
+            finish();
         }
     }
 
@@ -132,38 +160,34 @@ public class VideoActivity extends AppCompatActivity  {
         GoogleAnalytics.getInstance(this.getBaseContext()).dispatchLocalHits();
     }
 
+    private void initPlayer() {
+        if (null == mPlayer) return;
+        mPlayer.setOnPreparedListener(mediaPreparedListener);
+        mPlayer.setOnErrorListener(mediaErrorListener);
+        mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        try {
+            mPlayer.setDataSource(mURL);
+        } catch (IOException e) {
+            Crashlytics.logException(e);
+            Log.w(getClass().getSimpleName(), "Error setting URL to the player.\n"+mURL);
+            finish();
+        }
+        if (surfaceReady) {
+            mPlayer.setDisplay(surfaceHolder);
+            mPlayer.prepareAsync();
+        } else {
+            SurfaceView mSurfaceView = (SurfaceView) findViewById(R.id.videoSurface);
+            mSurfaceView.getHolder().addCallback(surfaceCallback);
+        }
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
-        try {
-            mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mPlayer.setDataSource(mURL);
-
-            mPlayer.setOnErrorListener(mediaErrorListener);
-        } catch (IOException e) {
-            Crashlytics.logException(e);
-        }
-
+        initPlayer();
         if (mCastManager != null) {
             mCastManager.addVideoCastConsumer(mCastConsumer);
             mCastManager.incrementUiCounter();
-        }
-    }
-
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        Log.v(TAG, "onTouchEvent");
-        showActionBar();
-        return false;
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        if (mPlayer != null) {
-            mPlayer.reset();
         }
     }
 
@@ -172,10 +196,17 @@ public class VideoActivity extends AppCompatActivity  {
         super.onPause();
         mPlayer.setOnPreparedListener(null);
         mPlayer.reset();
-
         if (mCastManager != null) {
             mCastManager.removeVideoCastConsumer(mCastConsumer);
             mCastManager.decrementUiCounter();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (mPlayer != null) {
+            mPlayer.reset();
         }
     }
 
@@ -233,13 +264,6 @@ public class VideoActivity extends AppCompatActivity  {
         }
     }
 
-    private Intent createStreamIntent() {
-        Intent shareIntent = new Intent(Intent.ACTION_VIEW);
-        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        shareIntent.setDataAndType(Uri.parse(mSelectedMedia.getContentId()), "application/x-mpegURL");
-        return shareIntent;
-    }
-
     private void hideSoftKeys() {
         final View v = getWindow().getDecorView();
         v.setSystemUiVisibility(UI_OPTIONS);
@@ -282,7 +306,10 @@ public class VideoActivity extends AppCompatActivity  {
             .build());
 
             GoogleAnalytics.getInstance(this.getBaseContext()).dispatchLocalHits();
-            mShareActionProvider.setShareIntent(createStreamIntent());
+            Intent shareIntent = new Intent(Intent.ACTION_VIEW);
+            shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+            shareIntent.setDataAndType(Uri.parse(mSelectedMedia.getContentId()), "application/x-mpegURL");
+            mShareActionProvider.setShareIntent(shareIntent);
         }
         return true;
     }
