@@ -58,4 +58,5 @@ dependencies {
         transitive = true;
     }
     compile 'org.greenrobot:eventbus:3.0.0'
+    compile 'com.google.android.exoplayer:exoplayer:r2.3.1'
 }

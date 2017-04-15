@@ -2,12 +2,11 @@ package com.iosharp.android.ssplayer.videoplayer;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
@@ -16,13 +15,28 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.hls.HlsMediaSource;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
@@ -44,76 +58,46 @@ public class VideoActivity extends AppCompatActivity  {
     private static final int UI_OPTIONS = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
     private static final int sDefaultTimeout = 3000;
 
-    private MediaPlayer mPlayer;
     private String mURL;
     private VideoCastManager mCastManager;
     private MediaInfo mSelectedMedia;
     private Tracker mTracker;
     private VideoCastConsumerImpl mCastConsumer;
     private View progress;
-    private boolean surfaceReady = false;
-    private SurfaceHolder surfaceHolder;
+    private SimpleExoPlayer player;
+    private boolean userCancelled;
 
-    private final SurfaceHolder.Callback surfaceCallback = new SurfaceHolder.Callback() {
-        @Override
-        public void surfaceCreated(SurfaceHolder holder) {
-            surfaceReady = true;
-            surfaceHolder = holder;
-            mPlayer.setDisplay(holder);
-            mPlayer.prepareAsync();
-        }
+    private AdaptiveMediaSourceEventListener eventListener = new AdaptiveMediaSourceEventListener() {
+        private static final String TAG = "ExoEventListener";
 
         @Override
-        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {}
-
-        @Override
-        public void surfaceDestroyed(SurfaceHolder holder) {
-            surfaceReady = false;
-            surfaceHolder = null;
-            mPlayer.setDisplay(null);
-        }
-    };
-
-    private final MediaPlayer.OnPreparedListener mediaPreparedListener = new MediaPlayer.OnPreparedListener() {
-        @Override
-        public void onPrepared(MediaPlayer mp) {
+        public void onLoadCompleted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
             getSupportActionBar().hide();
-            mPlayer.start();
             progress.setVisibility(View.GONE);
         }
-    };
 
-    private final MediaPlayer.OnErrorListener mediaErrorListener = new MediaPlayer.OnErrorListener() {
         @Override
-        public boolean onError(MediaPlayer mp, int what, int extra) {
-            Crashlytics.log(Log.ERROR, "MediaPlayer", String.format("Error(%s, %s)", what, extra));
-            switch (what) {
-                case MediaPlayer.MEDIA_ERROR_IO:
-                case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
-                case MediaPlayer.MEDIA_ERROR_SERVER_DIED: {
-                    Log.w(getClass().getSimpleName(), "Recoverable error for "+mURL);
-                    mPlayer.reset();
-                    progress.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            initPlayer();
-                        }
-                    }, 400);
-                    break;
-                }
-                case MediaPlayer.MEDIA_ERROR_MALFORMED:
-                case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
-                case MediaPlayer.MEDIA_ERROR_UNKNOWN:
-                case MediaPlayer.MEDIA_ERROR_UNSUPPORTED: {
-                    Log.w(getClass().getSimpleName(), "Unrecoverable error: "+what);
-                    Toast.makeText(getApplicationContext(),
-                        "Unknown media error. Try a different protocol/quality or open in an external player.",
-                        Toast.LENGTH_LONG).show();
-//                    finish();
-                }
+        public void onLoadCanceled(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
+            if (!userCancelled) {
+                Log.w(TAG, "onLoadCanceled");
+                Toast.makeText(getApplicationContext(),
+                    "Unknown media error. Try a different protocol/quality or open in an external player.",
+                    Toast.LENGTH_LONG).show();
+                finish();
             }
-            return true;
         }
+
+        @Override
+        public void onLoadError(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded, IOException error, boolean wasCanceled) {
+            Log.w(TAG, "onLoadError: ", error);
+        }
+
+        @Override
+        public void onLoadStarted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs) {}
+        @Override
+        public void onUpstreamDiscarded(int trackType, long mediaStartTimeMs, long mediaEndTimeMs) {}
+        @Override
+        public void onDownstreamFormatChanged(int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaTimeMs) {}
     };
 
     @Override
@@ -146,7 +130,6 @@ public class VideoActivity extends AppCompatActivity  {
             String title = mSelectedMedia.getMetadata().getString(MediaMetadata.KEY_TITLE);
             getSupportActionBar().setTitle(title);
             mURL = mSelectedMedia.getContentId();
-            mPlayer = new MediaPlayer();
         } else {
             Log.w(getClass().getSimpleName(), "You have to start this activity with parameters. Exiting.");
             finish();
@@ -161,24 +144,18 @@ public class VideoActivity extends AppCompatActivity  {
     }
 
     private void initPlayer() {
-        if (null == mPlayer) return;
-        mPlayer.setOnPreparedListener(mediaPreparedListener);
-        mPlayer.setOnErrorListener(mediaErrorListener);
-        mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        try {
-            mPlayer.setDataSource(mURL);
-        } catch (IOException e) {
-            Crashlytics.logException(e);
-            Log.w(getClass().getSimpleName(), "Error setting URL to the player.\n"+mURL);
-            finish();
-        }
-        if (surfaceReady) {
-            mPlayer.setDisplay(surfaceHolder);
-            mPlayer.prepareAsync();
-        } else {
-            SurfaceView mSurfaceView = (SurfaceView) findViewById(R.id.videoSurface);
-            mSurfaceView.getHolder().addCallback(surfaceCallback);
-        }
+        userCancelled = false;
+        progress.setVisibility(View.VISIBLE);
+        TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(new DefaultBandwidthMeter());
+        TrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
+        player = ExoPlayerFactory.newSimpleInstance(this, trackSelector, new DefaultLoadControl());
+        SimpleExoPlayerView simpleExoPlayerView = (SimpleExoPlayerView) findViewById(R.id.videoSurface);
+        simpleExoPlayerView.setUseController(false);
+        simpleExoPlayerView.setPlayer(player);
+        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "yourApplicationName"));
+        MediaSource videoSource = new HlsMediaSource(Uri.parse(mURL), dataSourceFactory, new Handler(Looper.getMainLooper()), eventListener);
+        player.setPlayWhenReady(true);
+        player.prepare(videoSource);
     }
 
     @Override
@@ -193,20 +170,13 @@ public class VideoActivity extends AppCompatActivity  {
 
     @Override
     protected void onPause() {
+        userCancelled = true;
         super.onPause();
-        mPlayer.setOnPreparedListener(null);
-        mPlayer.reset();
+        player.release();
+        player = null;
         if (mCastManager != null) {
             mCastManager.removeVideoCastConsumer(mCastConsumer);
             mCastManager.decrementUiCounter();
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        if (mPlayer != null) {
-            mPlayer.reset();
         }
     }
 

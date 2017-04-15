@@ -39,9 +39,9 @@ public class ChannelAdapter extends CursorAdapter {
         View retView = inflater.inflate(R.layout.channel_list_row, viewGroup, false);
 
         ViewHolder holder = new ViewHolder();
-        holder.channelIcon = (ImageView) retView.findViewById(R.id.imageView1);
-        holder.eventTitle = (TextView) retView.findViewById(R.id.textView2);
-        holder.channelName = (TextView) retView.findViewById(R.id.textView1);
+        holder.channelIcon = (ImageView) retView.findViewById(R.id.icon);
+        holder.eventTitle = (TextView) retView.findViewById(R.id.event);
+        holder.channelName = (TextView) retView.findViewById(R.id.title);
         retView.setTag(holder);
 
         return retView;
@@ -58,15 +58,15 @@ public class ChannelAdapter extends CursorAdapter {
     }
 
     private void showIcon(ViewHolder viewHolder, Context context, Cursor cursor) {
-        String SMOOTHSTREAMS_ICON_BASE = "http://smoothstreams.tv/schedule/includes/images/uploads/";
+//        String SMOOTHSTREAMS_ICON_BASE = "http://smoothstreams.tv/schedule/includes/images/uploads/";
         String channelIcon = cursor.getString(ChannelListFragment.COL_CHANNEL_ICON);
 
 
         if (channelIcon != null && !channelIcon.isEmpty()) {
-            String SMOOTHSTREAMS_ICON_URL = SMOOTHSTREAMS_ICON_BASE + channelIcon;
+//            String SMOOTHSTREAMS_ICON_URL = SMOOTHSTREAMS_ICON_BASE + channelIcon;
 
             Picasso.with(context)
-                    .load(SMOOTHSTREAMS_ICON_URL)
+                    .load(channelIcon)
                     .resize(100, 100)
                     .centerInside()
                     .into(viewHolder.channelIcon);
