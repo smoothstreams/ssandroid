@@ -41,7 +41,6 @@
     <string name="pref_ss_password_key" translatable="false">pref_ss_password_key</string>
     <string name="pref_service_default_value" translatable="false">live247</string>
     <string name="pref_server_default_value" translatable="false">d77.smoothstreams.tv</string>
-    <string name="pref_protocol_key">pref_protocol_key</string>
     <string name="pref_protocol_default_value">0</string>
     <string name="pref_protocol_notice_checkbox_key">pref_protocol_checkbox_key</string>
     <string name="pref_debug_mode_key">pref_debug_mode_key</string>
@@ -158,14 +157,6 @@
         <item translatable="false">360</item>
         <item translatable="false">720</item>
         <item translatable="false">1440</item>
-    </string-array>
-    <string-array name="list_stream_protocols" translatable="false">
-        <item translatable="false">HLS (HTML5)</item>
-        <!--item translatable="false">RTMP</item-->
-    </string-array>
-    <string-array name="list_stream_protocols_values" translatable="false">
-        <item translatable="false">0</item>
-        <item translatable="false">1</item>
     </string-array>
 
     <string name="alert_ok">OK</string>

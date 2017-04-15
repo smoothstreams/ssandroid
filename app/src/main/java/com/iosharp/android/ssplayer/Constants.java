@@ -20,4 +20,5 @@ public interface Constants {
     String CONTENT_TYPE = "application/x-mpegurl";
     String DEFAULT_SERVER = "dEU.smoothstreams.tv";
     String SMOOTHSTREAMS_SCHEDULE_FEED = "http://cdn.smoothstreams.tv/schedule/feed.json";
+    String WMSAUTH_PARAM = "wmsAuthSign";
 }

@@ -19,7 +19,6 @@ import java.util.List;
 
 public class Service implements Spinner.Listable {
     private static final String[] mapperView = {"view247", "viewms", "viewss", "viewmma", "viewmmasr", "viewstvn"};
-    private static final String[] mapperRtPorts = {"3625", "3655", "3665", "3645", "3645", "3615"};
     private static String[] ids;
 
     private static final SparseArray<Service> mapper = new SparseArray<>(mapperView.length);
@@ -33,14 +32,13 @@ public class Service implements Spinner.Listable {
         ids = c.getResources().getStringArray(R.array.list_services_values);
         boolean valid =
             labels.length == ids.length &&
-            labels.length == mapperView.length &&
-            labels.length == mapperRtPorts.length;
+            labels.length == mapperView.length;
         if (!valid) throw new IllegalStateException("mappers have different length");
 
         int size = ids.length;
         for (int i = 0; i < size; i++) {
             String id = ids[i];
-            Service service = new Service(id, labels[i], mapperView[i], mapperRtPorts[i]);
+            Service service = new Service(id, labels[i], mapperView[i]);
             if (id.equals(current)) {
                 currentService = service;
             }
@@ -81,13 +79,11 @@ public class Service implements Spinner.Listable {
     private String id;
     private String label;
     private String view;
-    private String port;
 
-    private Service(String id, String label, String view, String port) {
+    private Service(String id, String label, String view) {
         this.id = id;
         this.label = label;
         this.view = view;
-        this.port = port;
     }
 
     public String getView() {
@@ -97,10 +93,6 @@ public class Service implements Spinner.Listable {
     public String getHtmlPort() {
         //maybe someday we'll need one more mapper. But right now port is the same for all services
         return "9100";
-    }
-
-    public String getRTPort() {
-        return port;
     }
 
     @Override

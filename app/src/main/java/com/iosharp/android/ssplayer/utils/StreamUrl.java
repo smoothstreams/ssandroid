@@ -15,12 +15,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 public class StreamUrl {
-    public static final int HTML5 = 0;
-    public static final int RTMP = 1;
-    public static final int RTSP = 2;
 
-
-    public static String getUrl(Context context, int channel, int protocol) {
+    public static String getUrl(Context context, int channel) {
         if (!Service.hasActive() || !User.hasActive() || !User.getCurrentUser().hasActiveHash()) {
             Utils.forceLogin();
             return "";
@@ -36,28 +32,22 @@ public class StreamUrl {
         String streamQuality = quality ? "1" : "2";
 
         Service serviceMapping = Service.getCurrent();
-        String port = (protocol == 0) ? serviceMapping.getHtmlPort() : serviceMapping.getRTPort();
+        String port = serviceMapping.getHtmlPort();
         String servicePath = serviceMapping.getView();
 
-        String SERVICE_URL_AND_PORT = server + ":" + port;
-        String STREAM_CHANNEL_AND_QUALITY;
-        String BASE_URL;
-        String WMSAUTH_PARAM = "wmsAuthSign";
-        STREAM_CHANNEL_AND_QUALITY = String.format("ch%sq%s.stream", channelId, streamQuality);
-        switch (protocol) {
-            case StreamUrl.RTMP:
-                BASE_URL = "rtmp://" + SERVICE_URL_AND_PORT + "/"+ servicePath + "?" + WMSAUTH_PARAM +  "="+ password + "/" + STREAM_CHANNEL_AND_QUALITY;
-                return(BASE_URL);
-            case StreamUrl.RTSP:
-                BASE_URL = "rtsp://" + SERVICE_URL_AND_PORT + "/"+ servicePath +"/" + STREAM_CHANNEL_AND_QUALITY;
-                break;
-            case StreamUrl.HTML5:
-            default:
-                BASE_URL = "http://" + SERVICE_URL_AND_PORT + "/"+ servicePath +"/" + STREAM_CHANNEL_AND_QUALITY + "/playlist.m3u8";
-                break;
-        }
-        Uri uri = Uri.parse(BASE_URL).buildUpon()
-            .appendQueryParameter(WMSAUTH_PARAM, password)
+        Uri uri = Uri.parse(
+            new StringBuilder()
+                .append("http://")
+                .append(server)
+                .append(":")
+                .append(port)
+                .append("/")
+                .append(servicePath)
+                .append("/")
+                .append(String.format("ch%sq%s.stream", channelId, streamQuality))
+                .append("/playlist.m3u8").toString()
+            ).buildUpon()
+            .appendQueryParameter(Constants.WMSAUTH_PARAM, password)
             .build();
 
         String url = null;

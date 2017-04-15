@@ -1,6 +1,5 @@
 package com.iosharp.android.ssplayer.activity;
 
-import android.app.FragmentManager;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
@@ -20,7 +19,6 @@ import com.google.android.gms.analytics.Tracker;
 import com.iosharp.android.ssplayer.PlayerApplication;
 import com.iosharp.android.ssplayer.R;
 import com.iosharp.android.ssplayer.db.SearchSuggestionsProvider;
-import com.iosharp.android.ssplayer.fragment.NoticeDialogFragment;
 
 
 
@@ -91,17 +89,17 @@ public class SettingsActivity extends AppCompatActivity {
             servers.setEntries(R.array.list_servers);
             servers.setEntryValues(R.array.list_servers_values);
 
-            if (key.equals(getString(R.string.pref_protocol_key))) {
-                // check checkbox key to see if we should bother showing dialog
-                sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                boolean showNotice = sharedPreferences.getBoolean(getString(R.string.pref_protocol_notice_checkbox_key), true);
-
-                if (showNotice) {
-                    FragmentManager fm = getFragmentManager();
-                    NoticeDialogFragment noticeDialogFragment = new NoticeDialogFragment();
-                    noticeDialogFragment.show(fm, NoticeDialogFragment.class.getSimpleName());
-                }
-            }
+//            if (key.equals(getString(R.string.pref_protocol_key))) {
+//                // check checkbox key to see if we should bother showing dialog
+//                sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+//                boolean showNotice = sharedPreferences.getBoolean(getString(R.string.pref_protocol_notice_checkbox_key), true);
+//
+//                if (showNotice) {
+//                    FragmentManager fm = getFragmentManager();
+//                    NoticeDialogFragment noticeDialogFragment = new NoticeDialogFragment();
+//                    noticeDialogFragment.show(fm, NoticeDialogFragment.class.getSimpleName());
+//                }
+//            }
         }
 
         private void initSummary(Preference p) {

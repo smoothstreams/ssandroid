@@ -14,13 +14,6 @@
             android:key="@string/pref_quality_key"
             android:title="@string/preferences_high_quality"/>
 
-        <ListPreference
-            android:defaultValue="@string/pref_protocol_default_value"
-            android:entries="@array/list_stream_protocols"
-            android:entryValues="@array/list_stream_protocols_values"
-            android:key="@string/pref_protocol_key"
-            android:title="@string/preferences_protocol"
-            />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/preferences_other">
         <Preference

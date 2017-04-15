@@ -28,7 +28,6 @@ public class ChannelAdapter extends CursorAdapter {
         ImageView channelIcon;
         TextView eventTitle;
         TextView channelName;
-
     }
 
 
@@ -50,21 +49,14 @@ public class ChannelAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
-
         showIcon(viewHolder, context, cursor);
         setCurrentEvent(viewHolder, cursor);
-
         viewHolder.channelName.setText(cursor.getString(ChannelListFragment.COL_CHANNEL_NAME));
     }
 
     private void showIcon(ViewHolder viewHolder, Context context, Cursor cursor) {
-//        String SMOOTHSTREAMS_ICON_BASE = "http://smoothstreams.tv/schedule/includes/images/uploads/";
         String channelIcon = cursor.getString(ChannelListFragment.COL_CHANNEL_ICON);
-
-
         if (channelIcon != null && !channelIcon.isEmpty()) {
-//            String SMOOTHSTREAMS_ICON_URL = SMOOTHSTREAMS_ICON_BASE + channelIcon;
-
             Picasso.with(context)
                     .load(channelIcon)
                     .resize(100, 100)
