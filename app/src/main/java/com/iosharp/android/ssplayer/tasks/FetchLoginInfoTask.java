@@ -7,7 +7,6 @@ import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.iosharp.android.ssplayer.Constants;
-import com.iosharp.android.ssplayer.PlayerApplication;
 import com.iosharp.android.ssplayer.R;
 import com.iosharp.android.ssplayer.data.Service;
 import com.iosharp.android.ssplayer.data.User;
@@ -22,6 +21,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URL;
+
+import static com.iosharp.android.ssplayer.Constants.USER_AGENT;
 
 public class FetchLoginInfoTask extends AsyncTask<Void, Void, Void> {
     private static final String TAG = FetchLoginInfoTask.class.getSimpleName();
@@ -60,7 +61,6 @@ public class FetchLoginInfoTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected Void doInBackground(Void... voids) {
-        final String USER_AGENT = PlayerApplication.getUserAgent(mContext);
         final OkHttpClient client = new OkHttpClient();
         try {
             String builtUrl = (mService.contains("mma") ? Constants.AUTH_MMA_URL : Constants.AUTH_SS_URL) + "?"

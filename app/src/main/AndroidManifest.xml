@@ -84,11 +84,6 @@
         </activity>
 
         <provider
-            android:name=".db.ChannelProvider"
-            android:authorities="com.iosharp.android.ssplayer"
-            android:exported="false" />
-        
-        <provider
             android:authorities="com.iosharp.android.ssplayer.db.SearchSuggestionsProvider"
             android:name=".db.SearchSuggestionsProvider" />
 
@@ -96,13 +91,8 @@
             android:name="com.crashlytics.ApiKey"
             android:value="4df4b0f435d2c01d5c9bc887a08cecf028494545" />
 
-        <service android:name=".service.SmoothService" />
-
         <receiver
-            android:name=".service.SmoothService$EventReceiver"
-            android:enabled="true" />
-        <receiver
-            android:name=".service.SmoothService$AlertReceiver"
+            android:name=".service.AlertReceiver"
             android:enabled="true" />
 
         <activity
@@ -131,6 +121,7 @@
                 <action android:name="android.intent.action.MAIN"/>
             </intent-filter>
         </activity>
+        <service android:name=".service.BackgroundService"/>
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="f8fc54aeaf7c770f1a6d8411e3eea2def5d79881" />

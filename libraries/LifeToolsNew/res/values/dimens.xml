@@ -1,0 +1,10 @@
+<resources>
+    <dimen name="inset_margin">4dp</dimen>
+    <dimen name="half_padding">4dp</dimen>
+    <dimen name="default_padding">8dp</dimen>
+    <dimen name="double_padding">16dp</dimen>
+    <dimen name="panel_padding">8dp</dimen>
+    <dimen name="drawer_default_width">240dp</dimen>
+    <dimen name="tutorial_margin">8dp</dimen>
+    <dimen name="default_toolbar_height">192dp</dimen>
+</resources>

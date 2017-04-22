@@ -18,6 +18,10 @@ public class Schedule {
         channels.add(value);
     }
 
+    public List<Channel> getChannels() {
+        return channels;
+    }
+
     @Override
     public String toString() {
         return channels.size()+" channels";

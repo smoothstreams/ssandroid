@@ -3,17 +3,10 @@
 
     <string name="app_name">SmoothStreams Player</string>
     <string name="chromecast_app_id" translatable="false">1586DC79</string>
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="action_search">Search</string>
     <string name="title_activity_settings">Settings</string>
     <string name="title_activity_main">Streams</string>
-    <string name="media_controls_description">Media Controls</string>
-    <string name="preferences_login_settings">Login Settings</string>
-    <string name="preferences_service">Service</string>
-    <string name="preferences_username">Username</string>
-    <string name="preferences_password">Password</string>
-    <string name="preferences_hash">Pass Hash</string>
     <string name="preferences_stream_settings">Stream Settings</string>
     <string name="preferences_server_location">Server Location</string>
     <string name="preferences_high_quality">High Quality</string>
@@ -27,7 +20,6 @@
     <string name="preferences_us_west">US West</string>
     <string name="preferences_asia">Asia</string>
 
-    <string name="preferences_protocol">Protocol</string>
     <string name="preferences_other">Other</string>
     <string name="preferences_clear_search_history">Clear local search history</string>
     <string name="preferences_clear_search_history_hint">Remove searches you have performed from this device</string>
@@ -36,12 +28,9 @@
     <string name="pref_service_key" translatable="false">pref_service_key</string>
     <string name="pref_server_key" translatable="false">pref_server_key</string>
     <string name="pref_quality_key" translatable="false">pref_quality_key</string>
-    <string name="pref_ss_uid_key" translatable="false">pref_ss_uid_key</string>
     <string name="pref_ss_valid_key" translatable="false">pref_ss_valid_key</string>
     <string name="pref_ss_password_key" translatable="false">pref_ss_password_key</string>
-    <string name="pref_service_default_value" translatable="false">live247</string>
     <string name="pref_server_default_value" translatable="false">d77.smoothstreams.tv</string>
-    <string name="pref_protocol_default_value">0</string>
     <string name="pref_protocol_notice_checkbox_key">pref_protocol_checkbox_key</string>
     <string name="pref_debug_mode_key">pref_debug_mode_key</string>
     <string name="pref_clear_search_history_key">pref_clear_search_history_key</string>
@@ -109,9 +98,7 @@
     <string name="event_header_row_time">TIME</string>
     <string name="event_header_row_name">NAME</string>
     <string name="no_internet_connection_detected">No internet connection detected!</string>
-    <string name="ga_screen_channels" translatable="false">Channels</string>
     <string name="ga_screen_alert_dialog" translatable="false">Set Alert Dialog</string>
-    <string name="ga_screen_events" translatable="false">Events</string>
     <string name="ga_screen_video_player" translatable="false">Video Player</string>
     <string name="ga_screen_about" translatable="false">About</string>
     <string name="ga_screen_settings" translatable="false">Settings</string>

@@ -10,7 +10,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -24,26 +23,39 @@ import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.iosharp.android.ssplayer.BuildConfig;
+import com.iosharp.android.ssplayer.Constants;
 import com.iosharp.android.ssplayer.PlayerApplication;
 import com.iosharp.android.ssplayer.R;
 import com.iosharp.android.ssplayer.data.User;
 import com.iosharp.android.ssplayer.events.LoginEvent;
 import com.iosharp.android.ssplayer.fragment.ChannelListFragment;
 import com.iosharp.android.ssplayer.fragment.EventListFragment;
-import com.iosharp.android.ssplayer.service.SmoothService;
-import com.iosharp.android.ssplayer.utils.Utils;
+import com.iosharp.android.ssplayer.service.BackgroundService;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import io.fabric.sdk.android.Fabric;
+import ru.johnlife.lifetools.ClassConstantsProvider;
+import ru.johnlife.lifetools.activity.BaseActivity;
+import ru.johnlife.lifetools.service.BaseBackgroundService;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
     private final static String[] TAB_TITLES = {"Channels", "Events"};
     private CastContext mCastManager;
     private Tracker mTracker;
     private MenuItem loginItem;
+
+    @Override
+    protected boolean shouldBeLoggedIn() {
+        return false;
+    }
+
+    @Override
+    protected ClassConstantsProvider getClassConstants() {
+        return Constants.CLASS_CONSTANTS;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,16 +122,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getChannels() {
-        if (Utils.isInternetAvailable(this)) {
-            Intent intent = new Intent(this, SmoothService.class);
-            this.startService(intent);
-        }
+        requestService(new BaseBackgroundService.Requester<BackgroundService>() {
+            @Override
+            public void requestService(BackgroundService service) {
+                service.refreshSchedule();
+            }
+        });
     }
 
     @Override
     protected void onResume() {
-        getChannels();
         super.onResume();
+        getChannels();
     }
 
     public void setupActionBar() {

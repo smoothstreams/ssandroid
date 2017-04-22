@@ -20,6 +20,7 @@ import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.common.images.WebImage;
 import com.iosharp.android.ssplayer.Constants;
 import com.iosharp.android.ssplayer.R;
+import com.iosharp.android.ssplayer.data.Channel;
 import com.iosharp.android.ssplayer.data.Service;
 import com.iosharp.android.ssplayer.data.User;
 import com.iosharp.android.ssplayer.events.LoginEvent;
@@ -94,11 +95,19 @@ public class Utils {
         EventBus.getDefault().post(new LoginEvent(LoginEvent.Type.Failed)); //show login form
     }
 
-    public static MediaInfo buildMediaInfo(String channel, String studio, String url, String iconUrl) {
+    public static MediaInfo buildMediaInfo(Context context, Channel channel) {
+        String channelName = channel.getName();
+        String channelIcon = channel.getImg();
+        // Create MediaInfo based off channel
+        String url = StreamUrl.getUrl(context, channel.getChannelId());
+        return Utils.buildMediaInfo(channelName, "SmoothStreams", url, channelIcon);
+    }
+
+    private static MediaInfo buildMediaInfo(String channel, String studio, String url, String iconUrl) {
         MediaMetadata mediaMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_GENERIC);
         mediaMetadata.putString(MediaMetadata.KEY_TITLE, channel);
         mediaMetadata.putString(MediaMetadata.KEY_STUDIO, studio);
-        mediaMetadata.addImage(new WebImage(Uri.parse(Constants.SMOOTHSTREAMS_ICON_PREFIX + iconUrl)));
+        mediaMetadata.addImage(new WebImage(Uri.parse(iconUrl)));
         mediaMetadata.addImage(new WebImage(Uri.parse(Constants.SMOOTHSTREAMS_LOGO)));
 
         return new MediaInfo.Builder(url)

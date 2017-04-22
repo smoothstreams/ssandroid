@@ -1,24 +1,18 @@
 package com.iosharp.android.ssplayer.fragment;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.database.Cursor;
+import android.content.res.Resources;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
+import android.support.design.widget.AppBarLayout;
+import android.text.SpannableString;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
@@ -29,98 +23,145 @@ import com.google.android.gms.cast.framework.CastState;
 import com.iosharp.android.ssplayer.PlayerApplication;
 import com.iosharp.android.ssplayer.R;
 import com.iosharp.android.ssplayer.activity.LoginActivity;
-import com.iosharp.android.ssplayer.adapter.ChannelAdapter;
+import com.iosharp.android.ssplayer.data.Channel;
+import com.iosharp.android.ssplayer.data.Event;
 import com.iosharp.android.ssplayer.data.Service;
 import com.iosharp.android.ssplayer.data.User;
-import com.iosharp.android.ssplayer.utils.StreamUrl;
+import com.iosharp.android.ssplayer.events.ChannelsListEvent;
 import com.iosharp.android.ssplayer.utils.Utils;
 import com.iosharp.android.ssplayer.videoplayer.VideoActivity;
+import com.squareup.picasso.Picasso;
 
-import static com.iosharp.android.ssplayer.PlayerApplication.TrackerName;
-import static com.iosharp.android.ssplayer.db.ChannelContract.ChannelEntry;
-import static com.iosharp.android.ssplayer.db.ChannelContract.EventEntry;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.List;
+
+import ru.johnlife.lifetools.adapter.BaseAdapter;
+import ru.johnlife.lifetools.fragment.BaseListFragment;
+
 import static com.iosharp.android.ssplayer.utils.CastUtils.mediaInfoToBundle;
 
-public class ChannelListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-    public static final String TAG = ChannelListFragment.class.getSimpleName();
+public class ChannelListFragment extends BaseListFragment<Channel> {
+    private BaseAdapter<Channel> adapter;
 
-    private static final int CURSOR_LOADER_ID = 0;
+    @Override
+    protected BaseAdapter<Channel> instantiateAdapter(final Context context) {
+        adapter = new BaseAdapter<Channel>(R.layout.channel_list_row) {
+            @Override
+            protected ViewHolder<Channel> createViewHolder(final View view) {
+                return new ViewHolder<Channel>(view) {
+                    private TextView title = (TextView) view.findViewById(R.id.title);
+                    private TextView event = (TextView) view.findViewById(R.id.event);
+                    private ImageView icon = (ImageView) view.findViewById(R.id.icon);
 
-    private static final String[] CHANNEL_EVENT_COLUMNS = {
-            ChannelEntry.TABLE_NAME + "." + ChannelEntry._ID,
-            ChannelEntry.TABLE_NAME + "." + ChannelEntry.COLUMN_NAME,
-            ChannelEntry.TABLE_NAME + "." + ChannelEntry.COLUMN_ICON,
-            EventEntry.TABLE_NAME + "." + EventEntry._ID,
-            EventEntry.TABLE_NAME + "." + EventEntry.COLUMN_NAME,
-            "MIN(" + EventEntry.TABLE_NAME + "." + EventEntry.COLUMN_START_DATE +") AS " +
-                    EventEntry.COLUMN_START_DATE,
-            EventEntry.TABLE_NAME + "." + EventEntry.COLUMN_END_DATE,
-            EventEntry.TABLE_NAME + "." + EventEntry.COLUMN_QUALITY,
-            EventEntry.TABLE_NAME + "." + EventEntry.COLUMN_LANGUAGE,
+                    private View.OnClickListener itemClickListener = new View.OnClickListener() {
+                        @Override
+                        public void onClick(final View v) {
+                            if (Service.hasActive() && User.hasActive()) {
+                                if (!User.getCurrentUser().hasActiveHash()) {
+                                    Utils.revalidateCredentials(view.getContext(), new Utils.OnRevalidateTaskCompleteListener() {
+                                        @Override
+                                        public void success(String result) {
+                                            onClick(v);
+                                        }
+                                    });
+                                }
+                                handleNavigation(context, getItem());
+                            } else {
+                                Context context = view.getContext();
+                                context.startActivity(new Intent(context, LoginActivity.class));
+                            }
+                        }
+                    };
 
-    };
+                    {
+                        view.setOnClickListener(itemClickListener);
+                    }
 
-    // Indices tied to CHANNEL_COLUMNS
-    public static final int COL_CHANNEL_ID = 0;
-    public static final int COL_CHANNEL_NAME = 1;
-    public static final int COL_CHANNEL_ICON = 2;
-    public static final int COL_EVENT_ID = 3;
-    public static final int COL_EVENT_NAME = 4;
-    public static final int COL_EVENT_START_DATE = 5;
-    public static final int COL_EVENT_END_DATE = 6;
-    public static final int COL_EVENT_QUALITY = 7;
-    public static final int COL_EVENT_LANGUAGE = 8;
+                    @Override
+                    protected void hold(Channel channel) {
+                        title.setText(channel.getName());
+                        setEvent(channel);
+                        Picasso.with(context)
+                            .load(channel.getImg())
+                            .resize(100, 100)
+                            .centerInside()
+                            .into(icon);
+                    }
 
-    private ChannelAdapter mAdapter;
-    private CastContext mCastManager;
-    private int mChannelId;
+                    private void setEvent(Channel channel) {
+                        Event current = null;
+                        long now = System.currentTimeMillis();
+                        List<Event> events = channel.getEvents();
+                        if (null == events) return;
+                        for (Event event : events) {
+                            String title = event.getName();
+                            if (title != null && !title.isEmpty() && (now > event.getBeginTimeStamp()) && (now < event.getEndTimeStamp())) {
+                                current = event;
+                                break;
+                            }
+                        }
+                        if (null != current) {
+                            SpannableString qualitySpannableString = new SpannableString("");
+                            SpannableString languageSpannableString = new SpannableString("");
+                            String language = current.getLanguage();
+                            String quality = current.getQuality();
+                            if (!language.equals("")) {
+                                languageSpannableString = Utils.getLanguageImg(context, language);
+                            }
+                            if (quality.equalsIgnoreCase("720p")) {
+                                qualitySpannableString = Utils.getHighDefBadge();
+                            }
+                            event.setText(TextUtils.concat(current.getName(), languageSpannableString, qualitySpannableString));
+                            event.setVisibility(View.VISIBLE);
+                        } else {
+                            event.setText("");
+                            event.setVisibility(View.GONE);
+                        }
 
-    public ChannelListFragment() {
+                    }
+                };
+            }
+        };
+        EventBus.getDefault().register(this);
+        return adapter;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Service.hasActive() && User.hasActive() && !User.getCurrentUser().hasActiveHash()) {
-            Utils.revalidateCredentials(getActivity(), new Utils.OnRevalidateTaskCompleteListener.Silent());
-        }
-    }
-
-    private static boolean getDebugMode(Context context) {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return sharedPreferences.getBoolean(context.getString(R.string.pref_debug_mode_key), false);
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
+    public void onDestroy() {
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
     }
 
-    public void handleNavigation(Context context, MediaInfo info) {
+    private void handleNavigation(Context context, Channel channel) {
+        MediaInfo info = Utils.buildMediaInfo(context, channel);
         if (Utils.isInternetAvailable(context)) {
-
-            Tracker t = ((PlayerApplication) getActivity().getApplication()).getTracker(TrackerName.APP_TRACKER);
-
-            if (mCastManager != null && mCastManager.getCastState() == CastState.CONNECTED && mCastManager.getSessionManager().getCurrentCastSession() != null) {
+            Tracker t = ((PlayerApplication) getActivity().getApplication()).getTracker(PlayerApplication.TrackerName.APP_TRACKER);
+            CastContext castManager = PlayerApplication.getCastManager();
+            if (castManager != null && castManager.getCastState() == CastState.CONNECTED && castManager.getSessionManager().getCurrentCastSession() != null) {
                 t.send(new HitBuilders.EventBuilder()
-                        .setCategory(getString(R.string.ga_events_category_playback))
-                        .setAction(getString(R.string.ga_events_action_chromecast))
-                        .build());
+                    .setCategory(getString(R.string.ga_events_category_playback))
+                    .setAction(getString(R.string.ga_events_action_chromecast))
+                    .build());
                 GoogleAnalytics.getInstance(getActivity().getBaseContext()).dispatchLocalHits();
-                mCastManager.getSessionManager().getCurrentCastSession().getRemoteMediaClient().load(info);
-//                mCastManager.startVideoCastControllerActivity(context, info, 0, true);
+                castManager.getSessionManager().getCurrentCastSession().getRemoteMediaClient().load(info);
+//                castManager.startVideoCastControllerActivity(context, info, 0, true);
 
             } else {
                 Intent intent = new Intent(context, VideoActivity.class);
                 intent.putExtra("media", mediaInfoToBundle(info));
-                intent.putExtra("channel", mChannelId);
-
+                intent.putExtra("channel", channel.getChannelId());
                 t.send(new HitBuilders.EventBuilder()
-                        .setCategory(getString(R.string.ga_events_category_playback))
-                        .setAction(getString(R.string.ga_events_action_local))
-                        .build());
-
+                    .setCategory(getString(R.string.ga_events_category_playback))
+                    .setAction(getString(R.string.ga_events_action_local))
+                    .build());
                 GoogleAnalytics.getInstance(getActivity().getBaseContext()).dispatchLocalHits();
                 context.startActivity(intent);
             }
@@ -128,92 +169,22 @@ public class ChannelListFragment extends Fragment implements LoaderManager.Loade
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-//        mCastManager = PlayerApplication.getCastManager();
-//        if (mCastManager != null) {
-//            mCastManager.incrementUiCounter();
-//        }
+    protected String getTitle(Resources resources) {
+        return null;
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-//        if (mCastManager != null) {
-//            mCastManager.decrementUiCounter();
-//        }
+    protected AppBarLayout getToolbar(LayoutInflater layoutInflater, ViewGroup viewGroup) {
+        return null;
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, final ViewGroup container,
-                             Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_channel_list, container, false);
-        ListView listView = (ListView) rootView.findViewById(R.id.channel_list_view);
-        mAdapter = new ChannelAdapter(getActivity(), null);
-        listView.setAdapter(mAdapter);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(final AdapterView<?> adapterView, final View view, final int position, final long l) {
-                if (Service.hasActive() && User.hasActive()) {
-                    if (!User.getCurrentUser().hasActiveHash()) {
-                        Utils.revalidateCredentials(view.getContext(), new Utils.OnRevalidateTaskCompleteListener() {
-                            @Override
-                            public void success(String result) {
-                                onItemClick(adapterView, view, position, l);
-                            }
-                        });
-                    }
-                    Cursor c = (Cursor) mAdapter.getItem(position);
-                    c.moveToPosition(position);
-
-                    // Get channel details
-                    mChannelId = c.getInt(COL_CHANNEL_ID);
-                    String channelName = c.getString(COL_CHANNEL_NAME);
-                    String channelIcon = c.getString(COL_CHANNEL_ICON);
-
-                    // Create MediaInfo based off channel
-                    String url = StreamUrl.getUrl(getActivity(), mChannelId);
-                    MediaInfo mediaInfo = Utils.buildMediaInfo(channelName, "SmoothStreams", url, channelIcon);
-
-                    if (getDebugMode(getActivity())) {
-                        // If debug mode is enabled, we do not want to launch a stream instead in a toast put the URL
-                        Toast.makeText(getActivity(), "=====DEBUG MODE!=====\nURL: " + url + " copied to clipboard!"
-                            , Toast.LENGTH_LONG).show();
-
-                        ClipboardManager clipboardManager = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-                        ClipData streamUrl = ClipData.newPlainText("url", url);
-                        clipboardManager.setPrimaryClip(streamUrl);
-
-                    } else {
-                        // Pass to handleNavigation
-                        handleNavigation(getActivity(), mediaInfo);
-                    }
-                } else {
-                    Context context = view.getContext();
-                    context.startActivity(new Intent(context, LoginActivity.class));
-                }
-            }
-        });
-        return rootView;
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        String sortOrder =  ChannelEntry.TABLE_NAME + "." + ChannelEntry._ID +
-                ", " + EventEntry.TABLE_NAME + "." + EventEntry.COLUMN_START_DATE;
-
-        return new CursorLoader(getActivity(), ChannelEntry.CONTENT_URI, CHANNEL_EVENT_COLUMNS, null, null, sortOrder);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        mAdapter.changeCursor(cursor);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onChannelsEvent(ChannelsListEvent event) {
+        List<Channel> channels = event.getChannels();
+        if (null != channels && !channels.isEmpty() && null != adapter) {
+            adapter.clear();
+            adapter.addAll(channels);
+        }
     }
 }
 

@@ -24,7 +24,7 @@ import com.google.android.gms.analytics.Tracker;
 import com.iosharp.android.ssplayer.Constants;
 import com.iosharp.android.ssplayer.PlayerApplication;
 import com.iosharp.android.ssplayer.R;
-import com.iosharp.android.ssplayer.service.SmoothService;
+import com.iosharp.android.ssplayer.service.AlertReceiver;
 import com.iosharp.android.ssplayer.utils.Utils;
 
 public class AlertFragment extends DialogFragment {
@@ -73,10 +73,10 @@ public class AlertFragment extends DialogFragment {
                         int reminder = Integer.valueOf(mSelectedValue);
                         long reminderMilliseconds = reminder * 60 * 1000;
 
-                        Intent intent = new Intent(getActivity(), SmoothService.AlertReceiver.class);
-                        intent.putExtra(SmoothService.AlertReceiver.EXTRA_NAME, mEventName);
-                        intent.putExtra(SmoothService.AlertReceiver.EXTRA_TIME, mEventTime);
-                        intent.putExtra(SmoothService.AlertReceiver.EXTRA_CHANNEL, mEventChannel);
+                        Intent intent = new Intent(getActivity(), AlertReceiver.class);
+                        intent.putExtra(AlertReceiver.EXTRA_NAME, mEventName);
+                        intent.putExtra(AlertReceiver.EXTRA_TIME, mEventTime);
+                        intent.putExtra(AlertReceiver.EXTRA_CHANNEL, mEventChannel);
 
                         PendingIntent eventAlertIntent = PendingIntent.getBroadcast(getActivity(),
                                 mId * 100,

@@ -5,3 +5,7 @@ gradle
 **/*.iml
 **/*.apk
 signature
+libraries/*
+!libraries/LifetoolsNew*
+!libraries/Lifetools ORM*
+libraries/Lifetools ORM Visualizer
