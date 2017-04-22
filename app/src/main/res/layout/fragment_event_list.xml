@@ -11,13 +11,12 @@
         android:layout_height="match_parent"
 />
 
-    <com.google.android.libraries.cast.companionlibrary.widgets.MiniController
-        android:id="@+id/miniController_event"
+    <fragment
+        android:id="@+id/castMiniController"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/shadow7"
-        android:visibility="gone">
-    </com.google.android.libraries.cast.companionlibrary.widgets.MiniController>
+        android:visibility="gone"
+        class="com.google.android.gms.cast.framework.media.widget.MiniControllerFragment" />
 
 </RelativeLayout>

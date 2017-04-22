@@ -24,8 +24,8 @@ import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.cast.MediaInfo;
-import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
-import com.google.android.libraries.cast.companionlibrary.widgets.MiniController;
+import com.google.android.gms.cast.framework.CastContext;
+import com.google.android.gms.cast.framework.CastState;
 import com.iosharp.android.ssplayer.PlayerApplication;
 import com.iosharp.android.ssplayer.R;
 import com.iosharp.android.ssplayer.activity.LoginActivity;
@@ -36,10 +36,10 @@ import com.iosharp.android.ssplayer.utils.StreamUrl;
 import com.iosharp.android.ssplayer.utils.Utils;
 import com.iosharp.android.ssplayer.videoplayer.VideoActivity;
 
-import static com.google.android.libraries.cast.companionlibrary.utils.Utils.mediaInfoToBundle;
 import static com.iosharp.android.ssplayer.PlayerApplication.TrackerName;
 import static com.iosharp.android.ssplayer.db.ChannelContract.ChannelEntry;
 import static com.iosharp.android.ssplayer.db.ChannelContract.EventEntry;
+import static com.iosharp.android.ssplayer.utils.CastUtils.mediaInfoToBundle;
 
 public class ChannelListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     public static final String TAG = ChannelListFragment.class.getSimpleName();
@@ -72,7 +72,7 @@ public class ChannelListFragment extends Fragment implements LoaderManager.Loade
     public static final int COL_EVENT_LANGUAGE = 8;
 
     private ChannelAdapter mAdapter;
-    private VideoCastManager mCastManager;
+    private CastContext mCastManager;
     private int mChannelId;
 
     public ChannelListFragment() {
@@ -102,14 +102,14 @@ public class ChannelListFragment extends Fragment implements LoaderManager.Loade
 
             Tracker t = ((PlayerApplication) getActivity().getApplication()).getTracker(TrackerName.APP_TRACKER);
 
-            if (mCastManager != null && mCastManager.isConnected()) {
+            if (mCastManager != null && mCastManager.getCastState() == CastState.CONNECTED && mCastManager.getSessionManager().getCurrentCastSession() != null) {
                 t.send(new HitBuilders.EventBuilder()
                         .setCategory(getString(R.string.ga_events_category_playback))
                         .setAction(getString(R.string.ga_events_action_chromecast))
                         .build());
                 GoogleAnalytics.getInstance(getActivity().getBaseContext()).dispatchLocalHits();
-
-                mCastManager.startVideoCastControllerActivity(context, info, 0, true);
+                mCastManager.getSessionManager().getCurrentCastSession().getRemoteMediaClient().load(info);
+//                mCastManager.startVideoCastControllerActivity(context, info, 0, true);
 
             } else {
                 Intent intent = new Intent(context, VideoActivity.class);
@@ -130,32 +130,24 @@ public class ChannelListFragment extends Fragment implements LoaderManager.Loade
     @Override
     public void onResume() {
         super.onResume();
-
-        mCastManager = PlayerApplication.getCastManager();
-        if (mCastManager != null) {
-            mCastManager.incrementUiCounter();
-        }
+//        mCastManager = PlayerApplication.getCastManager();
+//        if (mCastManager != null) {
+//            mCastManager.incrementUiCounter();
+//        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mCastManager != null) {
-            mCastManager.decrementUiCounter();
-        }
+//        if (mCastManager != null) {
+//            mCastManager.decrementUiCounter();
+//        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_channel_list, container, false);
-
-        // MiniController
-        if (mCastManager != null) {
-            MiniController mMini = (MiniController) rootView.findViewById(R.id.miniController_channel);
-            mCastManager.addMiniController(mMini);
-        }
-
         ListView listView = (ListView) rootView.findViewById(R.id.channel_list_view);
         mAdapter = new ChannelAdapter(getActivity(), null);
         listView.setAdapter(mAdapter);

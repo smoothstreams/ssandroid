@@ -63,6 +63,7 @@ public class SmoothService extends IntentService {
         final OkHttpClient client = new OkHttpClient();
         String channelsJsonStr = null;
 
+        long startTime = System.currentTimeMillis();
         try {
 
             URL url = new URL(Constants.SMOOTHSTREAMS_SCHEDULE_FEED);
@@ -71,7 +72,7 @@ public class SmoothService extends IntentService {
                     .url(url)
                     .header("User-Agent", USER_AGENT)
                     .build();
-
+            startTime = System.currentTimeMillis();
             Response response = client.newCall(request).execute();
 
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
@@ -84,7 +85,6 @@ public class SmoothService extends IntentService {
         }
 
         try {
-            long startTime = System.currentTimeMillis();
 
             JSONObject channelList = new JSONObject(channelsJsonStr);
             Vector<ContentValues> channelsVector = new Vector<ContentValues>(channelList.length());
@@ -168,8 +168,6 @@ public class SmoothService extends IntentService {
                 eventsVector.toArray(eventsArray);
                 int eventRowsInserted = this.getContentResolver()
                         .bulkInsert(ChannelContract.EventEntry.CONTENT_URI, eventsArray);
-
-//                        Log.v(TAG, "inserted " + eventRowsInserted + " rows of events");
             }
 
             if (channelsVector.size() > 0) {
@@ -177,8 +175,6 @@ public class SmoothService extends IntentService {
                 channelsVector.toArray(channelsArray);
                 int channelRowsInserted = this.getContentResolver()
                         .bulkInsert(ChannelContract.ChannelEntry.CONTENT_URI, channelsArray);
-
-//                Log.v(TAG, "inserted " + channelRowsInserted + " rows of channels");
             }
         }  catch (JSONException e) {
             Crashlytics.logException(e);
@@ -195,14 +191,6 @@ public class SmoothService extends IntentService {
 
         Intent eventIntent = new Intent(this, EventReceiver.class);
         sendBroadcast(eventIntent);
-    }
-
-    static public class SyncReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Intent sendIntent = new Intent(context, SmoothService.class);
-            context.startService(sendIntent);
-        }
     }
 
     static public class EventReceiver extends BroadcastReceiver {

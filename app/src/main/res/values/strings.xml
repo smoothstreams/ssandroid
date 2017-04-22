@@ -180,5 +180,6 @@
     <string name="error_form_incomplete">Please complete the form</string>
     <string name="error_unknown_response">Unknown response, please try again or verify your internet connection</string>
     <string name="not_logged_in">Not logged in</string>
+    <string name="ccl_media_route_menu_title">Play on…</string>
 
 </resources>

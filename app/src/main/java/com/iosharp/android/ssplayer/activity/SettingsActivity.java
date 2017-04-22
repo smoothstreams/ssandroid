@@ -88,18 +88,6 @@ public class SettingsActivity extends AppCompatActivity {
             ListPreference servers = (ListPreference) findPreference(getString(R.string.pref_server_key));
             servers.setEntries(R.array.list_servers);
             servers.setEntryValues(R.array.list_servers_values);
-
-//            if (key.equals(getString(R.string.pref_protocol_key))) {
-//                // check checkbox key to see if we should bother showing dialog
-//                sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//                boolean showNotice = sharedPreferences.getBoolean(getString(R.string.pref_protocol_notice_checkbox_key), true);
-//
-//                if (showNotice) {
-//                    FragmentManager fm = getFragmentManager();
-//                    NoticeDialogFragment noticeDialogFragment = new NoticeDialogFragment();
-//                    noticeDialogFragment.show(fm, NoticeDialogFragment.class.getSimpleName());
-//                }
-//            }
         }
 
         private void initSummary(Preference p) {
@@ -124,18 +112,7 @@ public class SettingsActivity extends AppCompatActivity {
             if (p instanceof EditTextPreference) {
                 EditTextPreference editTextPref = (EditTextPreference) p;
                 // To show the password as masked instead of it being visible
-                if (p.getTitle().toString().contains("assword")) {
-                    // Don't mask what isn't there
-                    if (editTextPref.getText() == null) {
-                        p.setSummary("");
-                    } else {
-                        p.setSummary(editTextPref.getText().replaceAll(".", "*"));
-                    }
-
-                } else {
-                    // If it isn't a password field just show the text
-                    p.setSummary(editTextPref.getText());
-                }
+                p.setSummary(editTextPref.getText());
             }
             if (p instanceof MultiSelectListPreference) {
                 EditTextPreference editTextPref = (EditTextPreference) p;

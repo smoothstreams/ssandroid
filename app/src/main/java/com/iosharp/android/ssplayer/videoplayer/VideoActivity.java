@@ -40,14 +40,17 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
-import com.google.android.gms.cast.ApplicationMetadata;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
-import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
-import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumerImpl;
-import com.google.android.libraries.cast.companionlibrary.utils.Utils;
+import com.google.android.gms.cast.framework.CastButtonFactory;
+import com.google.android.gms.cast.framework.CastContext;
+import com.google.android.gms.cast.framework.CastSession;
+import com.google.android.gms.cast.framework.Session;
+import com.google.android.gms.cast.framework.SessionManager;
+import com.google.android.gms.cast.framework.SessionManagerListener;
 import com.iosharp.android.ssplayer.PlayerApplication;
 import com.iosharp.android.ssplayer.R;
+import com.iosharp.android.ssplayer.utils.CastUtils;
 
 import java.io.IOException;
 
@@ -59,13 +62,14 @@ public class VideoActivity extends AppCompatActivity  {
     private static final int sDefaultTimeout = 3000;
 
     private String mURL;
-    private VideoCastManager mCastManager;
+    private CastContext mCastManager;
     private MediaInfo mSelectedMedia;
     private Tracker mTracker;
-    private VideoCastConsumerImpl mCastConsumer;
     private View progress;
     private SimpleExoPlayer player;
     private boolean userCancelled;
+    private CastSession mCastSession;
+    private SessionManager mSessionManager;
 
     private AdaptiveMediaSourceEventListener eventListener = new AdaptiveMediaSourceEventListener() {
         private static final String TAG = "ExoEventListener";
@@ -99,6 +103,38 @@ public class VideoActivity extends AppCompatActivity  {
         @Override
         public void onDownstreamFormatChanged(int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaTimeMs) {}
     };
+    private SessionManagerListener<Session> mSessionManagerListener = new SessionManagerListener<Session>() {
+        @Override
+        public void onSessionStarted(Session session, String s) {
+            startCast();
+            invalidateOptionsMenu();
+        }
+
+        @Override
+        public void onSessionResumed(Session session, boolean b) {
+            startCast();
+            invalidateOptionsMenu();
+        }
+
+        private void startCast() {
+            if (mSelectedMedia != null) {
+                try {
+                    loadRemoteMedia(true);
+                    finish();
+                } catch (Exception e) {
+                    Crashlytics.logException(e);
+                }
+            }
+        }
+
+        @Override public void onSessionStarting(Session session) {}
+        @Override public void onSessionStartFailed(Session session, int i) {}
+        @Override public void onSessionEnding(Session session) {}
+        @Override public void onSessionEnded(Session session, int i) {}
+        @Override public void onSessionResuming(Session session, String s) {}
+        @Override public void onSessionResumeFailed(Session session, int i) {}
+        @Override public void onSessionSuspended(Session session, int i) {}
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,14 +155,14 @@ public class VideoActivity extends AppCompatActivity  {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         setupActionBar();
-        setupCastListeners();
+        mSessionManager = CastContext.getSharedInstance(this).getSessionManager();
         goFullscreen();
         getSupportActionBar().show();
         googleAnalytics();
 
         Bundle b = getIntent().getExtras();
         if (b != null) {
-            mSelectedMedia = Utils.bundleToMediaInfo(getIntent().getBundleExtra("media"));
+            mSelectedMedia = CastUtils.bundleToMediaInfo(getIntent().getBundleExtra("media"));
             String title = mSelectedMedia.getMetadata().getString(MediaMetadata.KEY_TITLE);
             getSupportActionBar().setTitle(title);
             mURL = mSelectedMedia.getContentId();
@@ -163,8 +199,8 @@ public class VideoActivity extends AppCompatActivity  {
         super.onResume();
         initPlayer();
         if (mCastManager != null) {
-            mCastManager.addVideoCastConsumer(mCastConsumer);
-            mCastManager.incrementUiCounter();
+            mCastSession = mSessionManager.getCurrentCastSession();
+            mSessionManager.addSessionManagerListener(mSessionManagerListener);
         }
     }
 
@@ -175,33 +211,13 @@ public class VideoActivity extends AppCompatActivity  {
         player.release();
         player = null;
         if (mCastManager != null) {
-            mCastManager.removeVideoCastConsumer(mCastConsumer);
-            mCastManager.decrementUiCounter();
-        }
-    }
-
-    private void setupCastListeners() {
-        if (mCastManager != null) {
-            mCastConsumer = new VideoCastConsumerImpl() {
-                @Override
-                public void onApplicationConnected(ApplicationMetadata appMetadata, String sessionId, boolean wasLaunched) {
-                    super.onApplicationConnected(appMetadata, sessionId, wasLaunched);
-                    if (mSelectedMedia != null) {
-                        try {
-                            loadRemoteMedia(true);
-                            finish();
-                        } catch (Exception e) {
-                            Crashlytics.logException(e);
-                        }
-                    }
-                }
-
-            };
+            mSessionManager.removeSessionManagerListener(mSessionManagerListener);
+            mCastSession = null;
         }
     }
 
     private void loadRemoteMedia(boolean autoPlay) {
-        mCastManager.startVideoCastControllerActivity(this, mSelectedMedia, 0, autoPlay);
+        mCastManager.getSessionManager().getCurrentCastSession().getRemoteMediaClient().load(mSelectedMedia, autoPlay, 0);
     }
 
 
@@ -263,7 +279,7 @@ public class VideoActivity extends AppCompatActivity  {
                     .build());
 
             GoogleAnalytics.getInstance(this.getBaseContext()).dispatchLocalHits();
-            mCastManager.addMediaRouterButton(menu, R.id.media_route_menu_item);
+            CastButtonFactory.setUpMediaRouteButton(this, menu, R.id.media_route_menu_item);
         }
 
         MenuItem menuItem = menu.findItem(R.id.action_share);

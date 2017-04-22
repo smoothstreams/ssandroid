@@ -12,9 +12,6 @@ import android.view.ViewGroup;
 
 import com.applidium.headerlistview.HeaderListView;
 import com.crashlytics.android.Crashlytics;
-import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
-import com.google.android.libraries.cast.companionlibrary.widgets.MiniController;
-import com.iosharp.android.ssplayer.PlayerApplication;
 import com.iosharp.android.ssplayer.R;
 import com.iosharp.android.ssplayer.adapter.EventAdapter;
 import com.iosharp.android.ssplayer.model.Event;
@@ -30,7 +27,6 @@ public class EventListFragment extends Fragment {
     private static ArrayList<ArrayList<Event>> mDateEvents;
     private static ArrayList<String> mDate;
     private static EventAdapter mAdapter;
-    private VideoCastManager mCastManager;
 
     public EventListFragment() {
 
@@ -119,19 +115,11 @@ public class EventListFragment extends Fragment {
         super.onResume();
         updateEvents(getActivity());
 
-        mCastManager = PlayerApplication.getCastManager();
-
-        if (mCastManager != null) {
-            mCastManager.incrementUiCounter();
-        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mCastManager != null) {
-            mCastManager.decrementUiCounter();
-        }
     }
 
     @Override
@@ -140,12 +128,6 @@ public class EventListFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_event_list, container, false);
 
         updateEvents(getActivity());
-
-        //MiniController
-        if (mCastManager != null) {
-            MiniController mMini = (MiniController) rootView.findViewById(R.id.miniController_event);
-            mCastManager.addMiniController(mMini);
-        }
 
         HeaderListView list = (HeaderListView) rootView.findViewById(R.id.channel_list_view);
         // This can be removed when HeaderListView fixes a bug https://github.com/applidium/HeaderListView/issues/28

@@ -3,7 +3,6 @@ package com.iosharp.android.ssplayer.activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -22,7 +21,8 @@ import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Logger;
 import com.google.android.gms.analytics.Tracker;
-import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
+import com.google.android.gms.cast.framework.CastButtonFactory;
+import com.google.android.gms.cast.framework.CastContext;
 import com.iosharp.android.ssplayer.BuildConfig;
 import com.iosharp.android.ssplayer.PlayerApplication;
 import com.iosharp.android.ssplayer.R;
@@ -41,7 +41,7 @@ import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends AppCompatActivity {
     private final static String[] TAB_TITLES = {"Channels", "Events"};
-    private VideoCastManager mCastManager;
+    private CastContext mCastManager;
     private Tracker mTracker;
     private MenuItem loginItem;
 
@@ -50,10 +50,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
-
-        if (!(Build.MODEL.contains("AFT") || Build.MANUFACTURER.equals("Amazon"))) {
-            VideoCastManager.checkGooglePlayServices(this);
-        }
 
         if (BuildConfig.DEBUG) {
             GoogleAnalytics.getInstance(this).setDryRun(true);
@@ -65,10 +61,6 @@ public class MainActivity extends AppCompatActivity {
         setupTabs();
 
         mCastManager = PlayerApplication.getCastManager();
-        if (mCastManager != null) {
-            mCastManager.reconnectSessionIfPossible();
-
-        }
         EventBus.getDefault().register(this);
     }
 
@@ -127,21 +119,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         getChannels();
-
-        mCastManager = PlayerApplication.getCastManager();
-
-        if (mCastManager != null) {
-            mCastManager.incrementUiCounter();
-        }
         super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        if (mCastManager != null) {
-            mCastManager.decrementUiCounter();
-        }
-        super.onPause();
     }
 
     public void setupActionBar() {
@@ -167,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
             loginItem.setIcon(R.drawable.ic_action_loged_out);
         }
         if (mCastManager != null) {
-            mCastManager.addMediaRouterButton(menu, R.id.media_route_menu_item);
+            CastButtonFactory.setUpMediaRouteButton(this, menu, R.id.media_route_menu_item);
         }
         return true;
     }
