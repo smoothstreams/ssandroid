@@ -1,6 +1,5 @@
 package com.iosharp.android.ssplayer.utils;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
@@ -14,7 +13,6 @@ import android.text.style.StyleSpan;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.common.images.WebImage;
@@ -29,41 +27,17 @@ import com.iosharp.android.ssplayer.tasks.OnTaskCompleteListener;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.SimpleTimeZone;
-import java.util.TimeZone;
 
 public class Utils {
 
     private static final String TAG = Utils.class.getSimpleName();
-    @SuppressLint("SimpleDateFormat")
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    static {
-        DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("EST"));
-    }
 
     public static String formatLongToString(long date, String pattern) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
         return simpleDateFormat.format(new Date(date));
-    }
-
-    public static Long convertDateToLong(String dateString) {
-        Date convertedDate;
-        try {
-            convertedDate = DATE_FORMAT.parse(dateString);
-            // If we adjust justDate for DST, we could be an hour behind and the date is not correct.
-            if (isDst()) {
-                return adjustForDst(convertedDate);
-            }
-            return convertedDate.getTime();
-        } catch (ParseException e) {
-            Crashlytics.logException(e);
-        }
-        return null;
     }
 
     public static String twoDigitsString(int number) {
@@ -115,17 +89,6 @@ public class Utils {
                 .setContentType(Constants.CONTENT_TYPE)
                 .setMetadata(mediaMetadata)
                 .build();
-    }
-
-    private static boolean isDst() {
-        return SimpleTimeZone.getDefault().inDaylightTime(new Date());
-    }
-
-    private static Long adjustForDst(Date date) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        cal.add(Calendar.HOUR, -1);
-        return cal.getTime().getTime();
     }
 
     public static SpannableString getHighDefBadge() {

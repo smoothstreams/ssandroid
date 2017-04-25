@@ -1,143 +1,57 @@
 package com.iosharp.android.ssplayer.fragment;
 
 
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.LongSparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.applidium.headerlistview.HeaderListView;
-import com.crashlytics.android.Crashlytics;
 import com.iosharp.android.ssplayer.R;
 import com.iosharp.android.ssplayer.adapter.EventAdapter;
-import com.iosharp.android.ssplayer.model.Event;
+import com.iosharp.android.ssplayer.data.Event;
+import com.iosharp.android.ssplayer.events.EventsListEvent;
 
-import java.util.ArrayList;
-import java.util.Date;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
-import static com.iosharp.android.ssplayer.db.ChannelContract.EventEntry;
+import java.util.List;
 
 public class EventListFragment extends Fragment {
-    private static final String TAG = EventListFragment.class.getSimpleName();
+    private EventAdapter adapter;
 
-    private static ArrayList<ArrayList<Event>> mDateEvents;
-    private static ArrayList<String> mDate;
-    private static EventAdapter mAdapter;
-
-    public EventListFragment() {
-
-    }
-
-    private static void getDateEvents(Context context, ArrayList<String> dates, ArrayList<ArrayList<Event>> events) {
-        if (!dates.isEmpty()) dates.clear();
-        if (!events.isEmpty()) events.clear();
-
-        Uri uri = EventEntry.buildEventDate();
-        Cursor dateCursor = context.getContentResolver().query(uri, null, null, null, null);
-        String date;
-
-        try {
-
-            if (dateCursor != null) {
-                while (dateCursor.moveToNext()) {
-                    ArrayList<Event> channelEvents = new ArrayList<Event>();
-                    date = dateCursor.getString(dateCursor.getColumnIndex(EventEntry.COLUMN_DATE));
-
-                    dates.add(date);
-
-                    Uri u = EventEntry.buildEventWithDate(date);
-                    String selection = EventEntry.TABLE_NAME + "." + EventEntry.COLUMN_END_DATE +
-                            " <= ?";
-                    String now = Long.toString(new Date().getTime());
-                    String[] selectionArgs = new String[]{now};
-                    String sortOrder = EventEntry.TABLE_NAME + "." + EventEntry.COLUMN_START_DATE +
-                            ", " + EventEntry.TABLE_NAME + "." + EventEntry.COLUMN_KEY_CHANNEL;
-
-                    Cursor eventCursor = context.getContentResolver().query(u, null, selection, selectionArgs, sortOrder);
-
-                    if (eventCursor != null) {
-                        while (eventCursor.moveToNext()) {
-                            int id = eventCursor.getInt(eventCursor.getColumnIndex(EventEntry._ID));
-                            String name = eventCursor.getString(eventCursor.getColumnIndex(EventEntry.COLUMN_NAME));
-                            int channel = eventCursor.getInt(eventCursor.getColumnIndex(EventEntry.COLUMN_KEY_CHANNEL));
-                            String quality = eventCursor.getString(eventCursor.getColumnIndex(EventEntry.COLUMN_QUALITY));
-                            long startDate = eventCursor.getLong(eventCursor.getColumnIndex(EventEntry.COLUMN_START_DATE));
-                            String language = eventCursor.getString(eventCursor.getColumnIndex(EventEntry.COLUMN_LANGUAGE));
-
-                            Event e = new Event();
-                            e.setId(id);
-                            e.setName(name);
-                            e.setChannel(channel);
-                            e.setQuality(quality);
-                            e.setStartDate(startDate);
-                            e.setLanguage(language);
-
-                            channelEvents.add(e);
-                        }
-                    }
-                    events.add(channelEvents);
-                    if (eventCursor != null) {
-                        eventCursor.close();
-                    }
-                }
-            }
-            if (dateCursor != null) {
-                dateCursor.close();
-            }
-        } catch (Exception e) {
-            Crashlytics.logException(e);
-        }
-    }
-
-    public static void updateEvents(Context context) {
-        if (mDate == null) mDate = new ArrayList<>();
-        if (mDateEvents == null) mDateEvents = new ArrayList<>();
-
-        getDateEvents(context, mDate, mDateEvents);
-
-        if (mAdapter != null) {
-            mAdapter.notifyDataSetChanged();
-        }
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-   }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        updateEvents(getActivity());
-
-    }
+    public EventListFragment() {}
 
     @Override
     public void onDestroy() {
+        EventBus.getDefault().unregister(this);
         super.onDestroy();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_event_list, container, false);
-
-        updateEvents(getActivity());
-
         HeaderListView list = (HeaderListView) rootView.findViewById(R.id.channel_list_view);
         // This can be removed when HeaderListView fixes a bug https://github.com/applidium/HeaderListView/issues/28
         //noinspection ResourceType
         list.setId(2);
-        mAdapter = new EventAdapter(getActivity(), mDate, mDateEvents);
-        list.setAdapter(mAdapter);
-
+        adapter = new EventAdapter(getActivity());
+        list.setAdapter(adapter);
+        EventBus.getDefault().register(this);
         return rootView;
     }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onEventsListEvent(EventsListEvent event) {
+        LongSparseArray<List<Event>> events = event.getEvents();
+        if (null != events && (events.size() > 0) && null != adapter) {
+            adapter.adapt(events);
+        }
+    }
+
 }
 
 

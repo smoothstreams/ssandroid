@@ -17,9 +17,12 @@
 #}
 -keepattributes SourceFile,LineNumberTable
 
--dontwarn com.squareup.okhttp.**
+-dontwarn okhttp3.**
+-dontwarn retrofit2.**
+-dontwarn com.squareup.**
 -dontwarn okio.**
 -dontwarn com.crashlytics.**
+-dontwarn com.fasterxml.jackson.databind.**
 
 #-libraryjars libs
 -keep class com.crashlytics.** { *; }
@@ -27,3 +30,5 @@
 -keep interface android.support.** { *; }
 -keep class com.google.android.** { *; }
 -keep class com.applidium.headerlistview.** { *; }
+
+-keep class com.iosharp.android.ssplayer.data.** { *; } 

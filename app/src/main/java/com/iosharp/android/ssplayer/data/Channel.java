@@ -1,5 +1,6 @@
 package com.iosharp.android.ssplayer.data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.j256.ormlite.field.DatabaseField;
 
 import java.util.List;
@@ -28,6 +29,11 @@ public class Channel extends JsonOrmData{
 
     public List<Event> getEvents() {
         return items;
+    }
+
+    @JsonProperty("name")
+    public void setName(String name) {
+        this.name = name.replace("&amp;", "&");
     }
 
     @Override

@@ -26,10 +26,10 @@ android {
 
     defaultConfig {
         applicationId "com.iosharp.android.ssplayer"
-        minSdkVersion 14
+        minSdkVersion 16
         targetSdkVersion 25
-        versionCode 42
-        versionName "0.22"
+        versionCode 43
+        versionName "0.30"
         multiDexEnabled true
     }
     buildTypes {
@@ -69,8 +69,8 @@ dependencies {
     compile 'com.google.android.gms:play-services-analytics:10.2.1'
     compile 'com.google.android.gms:play-services-auth:10.2.1'
     compile 'com.github.applidium:HeaderListView:-SNAPSHOT'
-    compile 'com.squareup.okhttp:okhttp:2.3.0'
-    compile 'com.squareup.okhttp:okhttp-urlconnection:2.3.0'
+    compile 'com.squareup.okhttp3:okhttp:3.7.0'
+    compile 'com.squareup.okhttp3:okhttp-urlconnection:3.7.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.squareup.retrofit2:retrofit:2.2.0'
     compile 'com.squareup.retrofit2:converter-jackson:2.2.0'

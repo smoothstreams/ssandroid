@@ -1,18 +1,23 @@
 package com.iosharp.android.ssplayer.service;
 
 import android.util.Log;
+import android.util.LongSparseArray;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.security.ProviderInstaller;
 import com.iosharp.android.ssplayer.Constants;
 import com.iosharp.android.ssplayer.data.Channel;
+import com.iosharp.android.ssplayer.data.Event;
 import com.iosharp.android.ssplayer.data.Schedule;
 import com.iosharp.android.ssplayer.events.ChannelsListEvent;
+import com.iosharp.android.ssplayer.events.EventsListEvent;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -28,6 +33,7 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 import ru.johnlife.lifetools.ClassConstantsProvider;
 import ru.johnlife.lifetools.orm.OrmHelper;
 import ru.johnlife.lifetools.service.BaseBackgroundService;
+import ru.johnlife.lifetools.tools.DateUtil;
 
 /**
  * Created by Yan Yurkin
@@ -45,6 +51,7 @@ public class BackgroundService extends BaseBackgroundService {
     private Timer timer = new Timer();
     private Rest restService;
     private List<Channel> channels;
+    private LongSparseArray<List<Event>> events;
     private TimerTask channelPersister = null;
     private class ChannelPersister extends TimerTask {
         @Override
@@ -64,6 +71,7 @@ public class BackgroundService extends BaseBackgroundService {
         initializeRestService();
         channels = db.getAll(Channel.class);
         postChannels();
+        updateEvents(channels);
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -111,6 +119,7 @@ public class BackgroundService extends BaseBackgroundService {
                     //TODO: merge
                     channels = schedule.getChannels();
                     postChannels();
+                    updateEvents(channels);
                     if (channelPersister != null) channelPersister.cancel();
                     channelPersister = new ChannelPersister();
                     timer.schedule(channelPersister, 200);
@@ -125,8 +134,36 @@ public class BackgroundService extends BaseBackgroundService {
         });
     }
 
+    private void updateEvents(List<Channel> channels) {
+        events = new LongSparseArray<>(channels.size()*20); //just a guess
+        for (Channel channel : channels) {
+            List<Event> channelEvents = channel.getEvents();
+            if (channelEvents == null) continue;
+            for (Event event : channelEvents) {
+                if (event.getEndTimeStamp() > System.currentTimeMillis()) {
+                    long key = DateUtil.getBeginOfTheDay(event.getBeginTimeStamp());
+                    List<Event> dateEvents = this.events.get(key);
+                    if (dateEvents == null) {
+                        dateEvents = new ArrayList<>();
+                        this.events.put(key, dateEvents);
+                    }
+                    event.setChannelBackReference(channel);
+                    dateEvents.add(event);
+                }
+            }
+        }
+        for (int i = 0; i < events.size(); i++) {
+            Collections.sort(events.valueAt(i));
+        }
+        postEvents();
+    }
+
     private void postChannels() {
-        EventBus.getDefault().post(new ChannelsListEvent(channels));
+        EventBus.getDefault().postSticky(new ChannelsListEvent(channels));
+    }
+
+    private void postEvents() {
+        EventBus.getDefault().postSticky(new EventsListEvent(events));
     }
 
 

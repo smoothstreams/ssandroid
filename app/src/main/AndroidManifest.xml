@@ -96,17 +96,6 @@
             android:enabled="true" />
 
         <activity
-            android:name=".activity.SearchableActivity"
-            android:label="@string/title_activity_searchable"
-            android:launchMode="singleTop">
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
-            <meta-data android:name="android.app.searchable"
-                       android:resource="@xml/searchable"/>
-        </activity>
-
-        <activity
             android:name=".activity.LoginActivity"
             android:label="@string/login"
             android:theme="@style/Theme.AppCompat.Light.Dialog"

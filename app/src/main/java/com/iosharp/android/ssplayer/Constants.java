@@ -6,7 +6,6 @@ import android.app.Activity;
 import com.iosharp.android.ssplayer.data.Channel;
 import com.iosharp.android.ssplayer.service.BackgroundService;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -37,16 +36,14 @@ public interface Constants extends ru.johnlife.lifetools.Constants {
     };
 
     String YEAR_TIME_FORMAT = "EEE MMM dd yyyy HH:mm";
-    String AUTH_SS_URL = "http://auth.smoothstreams.tv/hash_api.php";
+    String AUTH_SS_URL = "https://auth.smoothstreams.tv/hash_api.php";
     String AUTH_MMA_URL = "http://www.MMA-TV.net/loginForm.php";
     @SuppressLint("SimpleDateFormat")
-    SimpleDateFormat CONDENSED_DATE_FORMAT = new SimpleDateFormat("yyyyMMdd");
     String SMOOTHSTREAMS_LOGO = "https://pbs.twimg.com/profile_images/378800000147953484/7af5bfc30ff182f852da32be5af79dfd.jpeg";
     String CONTENT_TYPE = "application/x-mpegurl";
     String DEFAULT_SERVER = "dEU.smoothstreams.tv";
     String BASE_URI = "https://speed.guide.smoothstreams.tv/";
     String FEED_JSON = "feed.json";
-    String SMOOTHSTREAMS_SCHEDULE_FEED = BASE_URI + FEED_JSON;
     String WMSAUTH_PARAM = "wmsAuthSign";
     String USER_AGENT = "SmoothStreamsPlayer v"+BuildConfig.VERSION_NAME;
 

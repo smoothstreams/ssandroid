@@ -130,12 +130,6 @@ public class MainActivity extends BaseActivity {
         });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        getChannels();
-    }
-
     public void setupActionBar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(getString(R.string.title_activity_main));

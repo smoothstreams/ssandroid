@@ -1,10 +1,7 @@
 package com.iosharp.android.ssplayer.fragment;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -14,22 +11,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-import com.google.android.gms.cast.MediaInfo;
-import com.google.android.gms.cast.framework.CastContext;
-import com.google.android.gms.cast.framework.CastState;
-import com.iosharp.android.ssplayer.PlayerApplication;
 import com.iosharp.android.ssplayer.R;
-import com.iosharp.android.ssplayer.activity.LoginActivity;
 import com.iosharp.android.ssplayer.data.Channel;
 import com.iosharp.android.ssplayer.data.Event;
-import com.iosharp.android.ssplayer.data.Service;
-import com.iosharp.android.ssplayer.data.User;
 import com.iosharp.android.ssplayer.events.ChannelsListEvent;
 import com.iosharp.android.ssplayer.utils.Utils;
-import com.iosharp.android.ssplayer.videoplayer.VideoActivity;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
@@ -40,8 +26,6 @@ import java.util.List;
 
 import ru.johnlife.lifetools.adapter.BaseAdapter;
 import ru.johnlife.lifetools.fragment.BaseListFragment;
-
-import static com.iosharp.android.ssplayer.utils.CastUtils.mediaInfoToBundle;
 
 public class ChannelListFragment extends BaseListFragment<Channel> {
     private BaseAdapter<Channel> adapter;
@@ -59,20 +43,7 @@ public class ChannelListFragment extends BaseListFragment<Channel> {
                     private View.OnClickListener itemClickListener = new View.OnClickListener() {
                         @Override
                         public void onClick(final View v) {
-                            if (Service.hasActive() && User.hasActive()) {
-                                if (!User.getCurrentUser().hasActiveHash()) {
-                                    Utils.revalidateCredentials(view.getContext(), new Utils.OnRevalidateTaskCompleteListener() {
-                                        @Override
-                                        public void success(String result) {
-                                            onClick(v);
-                                        }
-                                    });
-                                }
-                                handleNavigation(context, getItem());
-                            } else {
-                                Context context = view.getContext();
-                                context.startActivity(new Intent(context, LoginActivity.class));
-                            }
+                            VideoNavigationHandler.handleNavigation(getItem(), getActivity());
                         }
                     };
 
@@ -130,42 +101,9 @@ public class ChannelListFragment extends BaseListFragment<Channel> {
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public void onDestroy() {
         EventBus.getDefault().unregister(this);
         super.onDestroy();
-    }
-
-    private void handleNavigation(Context context, Channel channel) {
-        MediaInfo info = Utils.buildMediaInfo(context, channel);
-        if (Utils.isInternetAvailable(context)) {
-            Tracker t = ((PlayerApplication) getActivity().getApplication()).getTracker(PlayerApplication.TrackerName.APP_TRACKER);
-            CastContext castManager = PlayerApplication.getCastManager();
-            if (castManager != null && castManager.getCastState() == CastState.CONNECTED && castManager.getSessionManager().getCurrentCastSession() != null) {
-                t.send(new HitBuilders.EventBuilder()
-                    .setCategory(getString(R.string.ga_events_category_playback))
-                    .setAction(getString(R.string.ga_events_action_chromecast))
-                    .build());
-                GoogleAnalytics.getInstance(getActivity().getBaseContext()).dispatchLocalHits();
-                castManager.getSessionManager().getCurrentCastSession().getRemoteMediaClient().load(info);
-//                castManager.startVideoCastControllerActivity(context, info, 0, true);
-
-            } else {
-                Intent intent = new Intent(context, VideoActivity.class);
-                intent.putExtra("media", mediaInfoToBundle(info));
-                intent.putExtra("channel", channel.getChannelId());
-                t.send(new HitBuilders.EventBuilder()
-                    .setCategory(getString(R.string.ga_events_category_playback))
-                    .setAction(getString(R.string.ga_events_action_local))
-                    .build());
-                GoogleAnalytics.getInstance(getActivity().getBaseContext()).dispatchLocalHits();
-                context.startActivity(intent);
-            }
-        }
     }
 
     @Override
@@ -178,7 +116,7 @@ public class ChannelListFragment extends BaseListFragment<Channel> {
         return null;
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onChannelsEvent(ChannelsListEvent event) {
         List<Channel> channels = event.getChannels();
         if (null != channels && !channels.isEmpty() && null != adapter) {

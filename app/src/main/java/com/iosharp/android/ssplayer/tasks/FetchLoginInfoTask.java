@@ -11,9 +11,6 @@ import com.iosharp.android.ssplayer.R;
 import com.iosharp.android.ssplayer.data.Service;
 import com.iosharp.android.ssplayer.data.User;
 import com.iosharp.android.ssplayer.events.LoginEvent;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
@@ -21,6 +18,10 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URL;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import static com.iosharp.android.ssplayer.Constants.USER_AGENT;
 
