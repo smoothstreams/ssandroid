@@ -3,7 +3,6 @@ package com.iosharp.android.ssplayer.videoplayer;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -44,9 +43,7 @@ import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
-import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.Session;
-import com.google.android.gms.cast.framework.SessionManager;
 import com.google.android.gms.cast.framework.SessionManagerListener;
 import com.iosharp.android.ssplayer.PlayerApplication;
 import com.iosharp.android.ssplayer.R;
@@ -68,8 +65,6 @@ public class VideoActivity extends AppCompatActivity  {
     private View progress;
     private SimpleExoPlayer player;
     private boolean userCancelled;
-    private CastSession mCastSession;
-    private SessionManager mSessionManager;
 
     private AdaptiveMediaSourceEventListener eventListener = new AdaptiveMediaSourceEventListener() {
         private static final String TAG = "ExoEventListener";
@@ -117,9 +112,9 @@ public class VideoActivity extends AppCompatActivity  {
         }
 
         private void startCast() {
-            if (mSelectedMedia != null) {
+            if (mSelectedMedia != null && mCastManager != null) {
                 try {
-                    loadRemoteMedia(true);
+                    mCastManager.getSessionManager().getCurrentCastSession().getRemoteMediaClient().load(mSelectedMedia, true, 0);
                     finish();
                 } catch (Exception e) {
                     Crashlytics.logException(e);
@@ -139,7 +134,6 @@ public class VideoActivity extends AppCompatActivity  {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mCastManager = PlayerApplication.getCastManager();
         setContentView(R.layout.activity_video);
         findViewById(R.id.videoSurfaceContainer).setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -153,9 +147,8 @@ public class VideoActivity extends AppCompatActivity  {
         hideSoftKeys();
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
+        mCastManager = PlayerApplication.getCastManager();
         setupActionBar();
-        mSessionManager = CastContext.getSharedInstance(this).getSessionManager();
         goFullscreen();
         getSupportActionBar().show();
         googleAnalytics();
@@ -199,8 +192,7 @@ public class VideoActivity extends AppCompatActivity  {
         super.onResume();
         initPlayer();
         if (mCastManager != null) {
-            mCastSession = mSessionManager.getCurrentCastSession();
-            mSessionManager.addSessionManagerListener(mSessionManagerListener);
+            mCastManager.getSessionManager().addSessionManagerListener(mSessionManagerListener);
         }
     }
 
@@ -211,15 +203,9 @@ public class VideoActivity extends AppCompatActivity  {
         player.release();
         player = null;
         if (mCastManager != null) {
-            mSessionManager.removeSessionManagerListener(mSessionManagerListener);
-            mCastSession = null;
+            mCastManager.getSessionManager().removeSessionManagerListener(mSessionManagerListener);
         }
     }
-
-    private void loadRemoteMedia(boolean autoPlay) {
-        mCastManager.getSessionManager().getCurrentCastSession().getRemoteMediaClient().load(mSelectedMedia, autoPlay, 0);
-    }
-
 
     private void setupActionBar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.video_toolbar);
@@ -245,9 +231,7 @@ public class VideoActivity extends AppCompatActivity  {
     private void goFullscreen() {
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
-        }
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
     }
 
     private void hideSoftKeys() {
@@ -280,6 +264,8 @@ public class VideoActivity extends AppCompatActivity  {
 
             GoogleAnalytics.getInstance(this.getBaseContext()).dispatchLocalHits();
             CastButtonFactory.setUpMediaRouteButton(this, menu, R.id.media_route_menu_item);
+        } else {
+            menu.findItem(R.id.media_route_menu_item).setVisible(false);
         }
 
         MenuItem menuItem = menu.findItem(R.id.action_share);

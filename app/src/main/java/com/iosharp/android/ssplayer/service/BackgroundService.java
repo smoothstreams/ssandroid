@@ -88,26 +88,26 @@ public class BackgroundService extends BaseBackgroundService {
     private void initializeRestService() {
         try {
             ProviderInstaller.installIfNeeded(getApplicationContext());
-            OkHttpClient client = new OkHttpClient.Builder()
-                .followSslRedirects(true)
-                .followRedirects(true)
-                .addInterceptor(new Interceptor() {
-                    @Override
-                    public okhttp3.Response intercept(Chain chain) throws IOException {
-                        Request request = chain.request().newBuilder().addHeader("User-Agent", Constants.USER_AGENT).build();
-                        return chain.proceed(request);
-                    }
-                })
-                .build();
-            restService = new Retrofit.Builder()
-                .baseUrl(Constants.BASE_URI)
-                .client(client)
-                .addConverterFactory(JacksonConverterFactory.create())
-                .build()
-                .create(Rest.class);
         } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
             Log.e(getClass().getSimpleName(), "Play Services Error", e);
         }
+        OkHttpClient client = new OkHttpClient.Builder()
+            .followSslRedirects(true)
+            .followRedirects(true)
+            .addInterceptor(new Interceptor() {
+                @Override
+                public okhttp3.Response intercept(Chain chain) throws IOException {
+                    Request request = chain.request().newBuilder().addHeader("User-Agent", Constants.USER_AGENT).build();
+                    return chain.proceed(request);
+                }
+            })
+            .build();
+        restService = new Retrofit.Builder()
+            .baseUrl(Constants.BASE_URI)
+            .client(client)
+            .addConverterFactory(JacksonConverterFactory.create())
+            .build()
+            .create(Rest.class);
     }
 
     public void refreshSchedule() {

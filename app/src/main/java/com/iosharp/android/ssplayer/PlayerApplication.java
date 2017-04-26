@@ -5,6 +5,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.util.Log;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
@@ -27,14 +28,15 @@ public class PlayerApplication extends Application {
 
     private void initializeCastManager() {
         if (!(Build.MODEL.contains("AFT") || Build.MANUFACTURER.equals("Amazon"))) {
-            sCastMgr = CastContext.getSharedInstance(this);
+            try {
+                sCastMgr = CastContext.getSharedInstance(this);
+            } catch (Exception e) {
+                Log.e(getClass().getSimpleName(), "Error initializing cast manager", e);
+            }
         }
     }
 
     public static CastContext getCastManager() {
-        if (sCastMgr == null) {
-            throw new IllegalStateException("Application has not been started");
-        }
         return sCastMgr;
     }
 

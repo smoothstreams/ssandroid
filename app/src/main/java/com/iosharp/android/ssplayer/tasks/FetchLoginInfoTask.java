@@ -39,6 +39,7 @@ public class FetchLoginInfoTask extends AsyncTask<Void, Void, Void> {
     private String mService;
     private boolean isRevalidating = false;
     private JSONObject json = null;
+    private Exception error;
 
     public FetchLoginInfoTask(Context context, OnTaskCompleteListener<String> listener) {
         if (!Service.hasActive() || !User.hasActive()) throw new IllegalStateException("Service is not selected");
@@ -86,10 +87,20 @@ public class FetchLoginInfoTask extends AsyncTask<Void, Void, Void> {
         } catch (JSONException|IOException e) {
             Crashlytics.logException(e);
             Log.w(getClass().getSimpleName(), e.getLocalizedMessage(), e);
+            if (listener != null) {
+                error = e;
+            }
+            cancel(true);
         }
         return null;
     }
 
+    @Override
+    protected void onCancelled(Void aVoid) {
+        if (listener != null && error != null) {
+            listener.error(error.getLocalizedMessage());
+        }
+    }
 
     @Override
     protected void onPostExecute(Void aVoid) {

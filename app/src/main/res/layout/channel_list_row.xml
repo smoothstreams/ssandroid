@@ -12,13 +12,13 @@
         android:layout_width="100dp"
         android:layout_height="48dp"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
+        android:layout_centerVertical="true"
         android:src="@drawable/default_video"/>
 
     <LinearLayout
         android:id="@+id/text_container"
         android:layout_width="wrap_content"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_marginLeft="10dp"
@@ -31,6 +31,7 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
             style="@style/ItemTitle"/>
 
         <TextView

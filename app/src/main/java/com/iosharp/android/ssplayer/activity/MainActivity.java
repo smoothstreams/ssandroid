@@ -1,5 +1,6 @@
 package com.iosharp.android.ssplayer.activity;
 
+import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +23,8 @@ import com.google.android.gms.analytics.Logger;
 import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.iosharp.android.ssplayer.BuildConfig;
 import com.iosharp.android.ssplayer.Constants;
 import com.iosharp.android.ssplayer.PlayerApplication;
@@ -61,7 +64,14 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
-        setContentView(R.layout.activity_main);
+        final int playServicesStatus = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this);
+        if (playServicesStatus != ConnectionResult.SUCCESS){
+            //If google play services in not available show an error dialog and return
+            final Dialog errorDialog = GoogleApiAvailability.getInstance().getErrorDialog(this, playServicesStatus, 0, null);
+            errorDialog.show();
+        }
+        mCastManager = PlayerApplication.getCastManager();
+        setContentView(null == mCastManager ? R.layout.activity_main_nocast : R.layout.activity_main);
 
         if (BuildConfig.DEBUG) {
             GoogleAnalytics.getInstance(this).setDryRun(true);
@@ -72,7 +82,6 @@ public class MainActivity extends BaseActivity {
         setupActionBar();
         setupTabs();
 
-        mCastManager = PlayerApplication.getCastManager();
         EventBus.getDefault().register(this);
     }
 
@@ -154,6 +163,8 @@ public class MainActivity extends BaseActivity {
         }
         if (mCastManager != null) {
             CastButtonFactory.setUpMediaRouteButton(this, menu, R.id.media_route_menu_item);
+        } else {
+            menu.findItem(R.id.media_route_menu_item).setVisible(false);
         }
         return true;
     }
