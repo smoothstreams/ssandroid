@@ -21,7 +21,7 @@ import java.util.Map;
 import ru.johnlife.lifetools.data.AbstractData;
 import ru.johnlife.lifetools.data.IdentityOrmData;
 import ru.johnlife.lifetools.tools.Restart;
-import ru.johnlife.lifetools.reporter.UpmobileExceptionReporter;
+import ru.johnlife.lifetools.reporter.LifetoolsExceptionReporter;
 import ru.johnlife.lifetools.task.Task;
 
 /**
@@ -204,7 +204,7 @@ public class OrmHelper<ID> extends OrmLiteSqliteOpenHelper {
 
 	private <T extends AbstractData> T handleException(SQLException e) {
 		Log.e("SQL_Exception", "Error in db", e);
-		UpmobileExceptionReporter.getInstance(context).logException(e);
+		LifetoolsExceptionReporter.getInstance(context).logException(e);
 		new Task(){
 			@Override
 			protected void doInBackground() {

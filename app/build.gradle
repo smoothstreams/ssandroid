@@ -74,9 +74,6 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.squareup.retrofit2:retrofit:2.2.0'
     compile 'com.squareup.retrofit2:converter-jackson:2.2.0'
-    compile('com.crashlytics.sdk.android:crashlytics:2.5.3@aar') {
-        transitive = true;
-    }
     compile 'org.greenrobot:eventbus:3.0.0'
     compile 'com.google.android.exoplayer:exoplayer:r2.3.1'
 }

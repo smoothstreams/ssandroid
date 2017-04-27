@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -18,7 +17,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.iosharp.android.ssplayer.Constants;
@@ -58,8 +56,6 @@ public class AlertFragment extends DialogFragment {
             mEventName = b.getString(BUNDLE_NAME);
             mEventChannel = b.getInt(BUNDLE_CHANNEL);
             mEventTime = b.getLong(BUNDLE_TIME);
-        } else {
-            Crashlytics.log(Log.ERROR, TAG, "Bundle is null!");
         }
 
         final TypedArray spinnerValues = getResources().obtainTypedArray(R.array.list_times_values);

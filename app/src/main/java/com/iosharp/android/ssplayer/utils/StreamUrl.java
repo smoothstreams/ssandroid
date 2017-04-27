@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.iosharp.android.ssplayer.Constants;
 import com.iosharp.android.ssplayer.R;
 import com.iosharp.android.ssplayer.data.Service;
@@ -55,7 +55,7 @@ public class StreamUrl {
         try {
             url = URLDecoder.decode(uri.toString(), "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            Crashlytics.logException(e);
+            Log.w("StreamUrl", e.getLocalizedMessage(), e);
         }
         return url;
     }

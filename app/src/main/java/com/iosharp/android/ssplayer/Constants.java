@@ -45,7 +45,8 @@ public interface Constants extends ru.johnlife.lifetools.Constants {
     String BASE_URI = "https://speed.guide.smoothstreams.tv/";
     String FEED_JSON = "feed.json";
     String WMSAUTH_PARAM = "wmsAuthSign";
-    String USER_AGENT = "SmoothStreamsPlayer v"+BuildConfig.VERSION_NAME;
+    String VERSION = "v" + BuildConfig.VERSION_NAME;
+    String USER_AGENT = "SmoothStreamsPlayer " + VERSION;
 
     long UPDATE_DELAY = 15*MINUTE;
 }

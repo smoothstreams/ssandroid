@@ -10,7 +10,7 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 
 import ru.johnlife.lifetools.ClassConstantsProvider;
-import ru.johnlife.lifetools.reporter.UpmobileExceptionReporter;
+import ru.johnlife.lifetools.reporter.LifetoolsExceptionReporter;
 
 public abstract class BaseBackgroundService extends Service {
 	protected static final Void[] NO_PARAMS = (Void[])null;
@@ -23,7 +23,7 @@ public abstract class BaseBackgroundService extends Service {
 
 	// -- Requester
 	public interface Requester<T extends BaseBackgroundService> {
-		public void requestService(T service);
+		void requestService(T service);
 	}
 	
 	private ServiceBinder binder = new ServiceBinder();
@@ -41,7 +41,7 @@ public abstract class BaseBackgroundService extends Service {
 
 	@Override
 	public void onCreate() {
-		Thread.setDefaultUncaughtExceptionHandler(UpmobileExceptionReporter.getInstance(this));
+		Thread.setDefaultUncaughtExceptionHandler(LifetoolsExceptionReporter.getInstance(this));
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		String sessionID = prefs.getString("SessionID", null);
 		if (null != sessionID) {

@@ -16,7 +16,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Logger;
@@ -39,7 +38,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import io.fabric.sdk.android.Fabric;
 import ru.johnlife.lifetools.ClassConstantsProvider;
 import ru.johnlife.lifetools.activity.BaseActivity;
 import ru.johnlife.lifetools.service.BaseBackgroundService;
@@ -63,7 +61,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Fabric.with(this, new Crashlytics());
         final int playServicesStatus = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this);
         if (playServicesStatus != ConnectionResult.SUCCESS){
             //If google play services in not available show an error dialog and return

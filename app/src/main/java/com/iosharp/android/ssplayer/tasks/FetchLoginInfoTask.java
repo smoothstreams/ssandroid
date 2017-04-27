@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.iosharp.android.ssplayer.Constants;
 import com.iosharp.android.ssplayer.R;
 import com.iosharp.android.ssplayer.data.Service;
@@ -85,7 +84,6 @@ public class FetchLoginInfoTask extends AsyncTask<Void, Void, Void> {
                 throw new IOException("Unexpected code " + response);
             }
         } catch (JSONException|IOException e) {
-            Crashlytics.logException(e);
             Log.w(getClass().getSimpleName(), e.getLocalizedMessage(), e);
             if (listener != null) {
                 error = e;
@@ -136,7 +134,7 @@ public class FetchLoginInfoTask extends AsyncTask<Void, Void, Void> {
                 }
             }
         } catch (JSONException e) {
-            Crashlytics.logException(e);
+            Log.w(getClass().getSimpleName(), e.getLocalizedMessage(), e);
         }
     }
 

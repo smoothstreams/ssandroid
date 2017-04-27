@@ -2,8 +2,8 @@ package com.iosharp.android.ssplayer.data;
 
 import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -84,7 +84,7 @@ public class Event extends JsonData implements Comparable<Event>{
             }
             return convertedDate.getTime();
         } catch (ParseException e) {
-            Crashlytics.logException(e);
+            Log.w("Event", "Cannot parse date"+dateString, e);
         }
         return -1;
     }

@@ -6,14 +6,12 @@ import android.support.annotation.StyleRes;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.TextAppearanceSpan;
-import android.util.SparseArray;
 
 /**
  * Created by Yan Yurkin
  * 15 June 2016
  */
 public class StyledStringBuilder {
-    private static final SparseArray<TextAppearanceSpan> styles = new SparseArray<>();
     private Context context;
     private SpannableStringBuilder b = new SpannableStringBuilder();
 
@@ -35,12 +33,7 @@ public class StyledStringBuilder {
     }
 
     private TextAppearanceSpan getStyle(int style) {
-        TextAppearanceSpan value = styles.get(style);
-        if (null == value) {
-            value = new TextAppearanceSpan(context, style);
-            styles.put(style, value);
-        }
-        return value;
+        return new TextAppearanceSpan(context, style);
     }
 
     public Spanned build() {

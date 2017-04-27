@@ -89,7 +89,7 @@ public class BackgroundService extends BaseBackgroundService {
         try {
             ProviderInstaller.installIfNeeded(getApplicationContext());
         } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
-            Log.e(getClass().getSimpleName(), "Play Services Error", e);
+            Log.w(getClass().getSimpleName(), "Play Services Error", e);
         }
         OkHttpClient client = new OkHttpClient.Builder()
             .followSslRedirects(true)

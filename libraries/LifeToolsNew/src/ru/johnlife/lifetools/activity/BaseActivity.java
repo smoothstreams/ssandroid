@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.johnlife.lifetools.ClassConstantsProvider;
-import ru.johnlife.lifetools.reporter.UpmobileExceptionReporter;
+import ru.johnlife.lifetools.reporter.LifetoolsExceptionReporter;
 import ru.johnlife.lifetools.service.BaseBackgroundService;
 import ru.johnlife.lifetools.service.BaseBackgroundService.ServiceBinder;
 
@@ -64,7 +64,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Thread.setDefaultUncaughtExceptionHandler(UpmobileExceptionReporter.getInstance(this));
+		Thread.setDefaultUncaughtExceptionHandler(LifetoolsExceptionReporter.getInstance(this));
 		ClassConstantsProvider classConstants = getClassConstants();
 		serviceIntent = classConstants.getBackgroundServiceIntent(this);
 	}

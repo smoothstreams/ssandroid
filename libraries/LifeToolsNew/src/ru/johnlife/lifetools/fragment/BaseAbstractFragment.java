@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import ru.johnlife.lifetools.Constants;
 import ru.johnlife.lifetools.R;
 import ru.johnlife.lifetools.activity.BaseActivity;
+import ru.johnlife.lifetools.activity.BaseMainActivity;
 import ru.johnlife.lifetools.service.BaseBackgroundService;
 
 public abstract class BaseAbstractFragment extends Fragment implements Constants {
@@ -220,6 +221,14 @@ public abstract class BaseAbstractFragment extends Fragment implements Constants
 			baseActivity.requestService(requester);
 		} else {
 			Log.e(TAG, "Cannot request activity "+baseActivity);
+		}
+	}
+
+	protected void changeFragment(BaseAbstractFragment fragment, boolean addToBack) {
+		if (baseActivity != null && baseActivity instanceof BaseMainActivity) {
+			((BaseMainActivity) baseActivity).changeFragment(fragment, addToBack);
+		} else {
+			Log.e(TAG, "Cannot change fragment in "+baseActivity);
 		}
 	}
 

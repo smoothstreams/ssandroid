@@ -19,6 +19,8 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.HashMap;
 
+import ru.johnlife.lifetools.reporter.LifetoolsExceptionReporter;
+
 public class PlayerApplication extends Application {
 
     private static Context applicationContext;
@@ -71,6 +73,7 @@ public class PlayerApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Thread.setDefaultUncaughtExceptionHandler(LifetoolsExceptionReporter.getInstance(this));
         EventBus.getDefault().register(this);
         applicationContext = getApplicationContext();
         initializeCastManager();

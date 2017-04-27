@@ -18,7 +18,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
@@ -117,7 +116,7 @@ public class VideoActivity extends AppCompatActivity  {
                     mCastManager.getSessionManager().getCurrentCastSession().getRemoteMediaClient().load(mSelectedMedia, true, 0);
                     finish();
                 } catch (Exception e) {
-                    Crashlytics.logException(e);
+                    Log.w(getClass().getSimpleName(), "startCast: ", e);
                 }
             }
         }

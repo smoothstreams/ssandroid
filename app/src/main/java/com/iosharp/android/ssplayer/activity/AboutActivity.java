@@ -1,14 +1,11 @@
 package com.iosharp.android.ssplayer.activity;
 
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +13,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.iosharp.android.ssplayer.Constants;
 import com.iosharp.android.ssplayer.PlayerApplication;
 import com.iosharp.android.ssplayer.R;
 
@@ -84,7 +81,6 @@ public class AboutActivity extends ActionBarActivity {
                     editor.commit();
 
                     debugButton.setVisibility(View.GONE);
-                    Crashlytics.log(Log.INFO, TAG, "Debug mode disabled.");
                     Toast.makeText(getActivity(), "Debug mode disabled!", Toast.LENGTH_LONG).show();
                 }
             });
@@ -105,7 +101,6 @@ public class AboutActivity extends ActionBarActivity {
                             editor.commit();
 
                             debugButton.setVisibility(View.VISIBLE);
-                            Crashlytics.log(Log.INFO ,TAG, "Debug mode enabled.");
                             Toast.makeText(getActivity(), "Debug mode enabled!", Toast.LENGTH_LONG).show();
 
                             mTracker.send(new HitBuilders.EventBuilder()
@@ -116,32 +111,10 @@ public class AboutActivity extends ActionBarActivity {
                     }
                 }
             });
-
-
-            ((TextView) rootView.findViewById(R.id.about_app_version)).setText(getVersionInfo());
+            ((TextView) rootView.findViewById(R.id.about_app_version)).setText(Constants.VERSION);
             ((TextView) rootView.findViewById(R.id.about_body)).setText(getString(R.string.about_body));
 
             return rootView;
         }
-
-        public String getVersionInfo() {
-            String strVersion = "v";
-
-            PackageInfo packageInfo;
-            try {
-                packageInfo = getActivity().getPackageManager().getPackageInfo(
-                        getActivity().getPackageName(), 0);
-                strVersion += packageInfo.versionName;
-
-            } catch (PackageManager.NameNotFoundException e) {
-                Crashlytics.logException(e);
-                strVersion += "Unknown";
-            }
-
-            return strVersion;
-        }
-
     }
-
-
 }

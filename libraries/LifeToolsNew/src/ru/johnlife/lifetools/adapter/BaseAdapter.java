@@ -127,6 +127,30 @@ public abstract class BaseAdapter<T extends AbstractData> extends RecyclerView.A
             add(item);
         }
     }
+
+    /**
+     * Adapts new set into adapter.
+     * Changed items (.equals) are replaced. New ones added to the end
+     * @param collection
+     */
+    public void adapt(Collection<? extends T> collection) {
+        for (T item : collection) {
+            replace(item);
+        }
+    }
+
+    /**
+     * Clears the adapter and adds all items from the new collection.
+     * No animation. Triggers notifyDataSetChanged
+     * @param collection
+     */
+    public void set(Collection<? extends T> collection) {
+        if (collection == null) return;
+        items.clear();
+        items.addAll(collection);
+        notifyDataSetChanged();
+    }
+
     @Override
     public Iterator<T> iterator() {
         return null == items ? null : items.iterator();
