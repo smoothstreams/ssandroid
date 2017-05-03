@@ -1,6 +1,8 @@
 package ru.johnlife.lifetools;
 
+import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public interface Constants {
 	static final String UTF_8 = "UTF-8";
@@ -32,4 +34,7 @@ public interface Constants {
 	long WEEK = 7 * DAY;
 	long MONTH = 30 * DAY;
 	long YEAR = 365 * DAY;
+	SimpleDateFormat ISO_GMT_DateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.UK){{
+		setTimeZone(TimeZone.getTimeZone("GMT"));
+	}};
 }
