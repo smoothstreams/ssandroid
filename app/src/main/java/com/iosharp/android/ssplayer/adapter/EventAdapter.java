@@ -10,36 +10,38 @@ import android.util.LongSparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.TextView;
 
-import com.applidium.headerlistview.SectionAdapter;
 import com.iosharp.android.ssplayer.R;
 import com.iosharp.android.ssplayer.data.Event;
 import com.iosharp.android.ssplayer.fragment.AlertFragment;
 import com.iosharp.android.ssplayer.fragment.VideoNavigationHandler;
 import com.iosharp.android.ssplayer.utils.Utils;
 
+import org.zakariya.stickyheaders.SectioningAdapter;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-public class EventAdapter extends SectionAdapter {
+public class EventAdapter extends SectioningAdapter {
     private Context mContext;
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("HH:mm");
     private LongSparseArray<List<Event>> events = new LongSparseArray<>();
+    private final LayoutInflater inflater;
 
     public EventAdapter(Context context) {
         mContext = context;
+        inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
-    public int numberOfSections() {
+    public int getNumberOfSections() {
         return events.size();
     }
 
     @Override
-    public int numberOfRows(int section) {
+    public int getNumberOfItemsInSection(int section) {
         if (section > -1) {
             return events.valueAt(section).size();
         }
@@ -48,40 +50,49 @@ public class EventAdapter extends SectionAdapter {
 
     public void adapt(LongSparseArray<List<Event>> events) {
         this.events = events;
-        notifyDataSetChanged();
+        notifyAllSectionsDataSetChanged();
+//        notifyDataSetChanged();
     }
 
-    private static class RowViewHolder {
+    private class RowViewHolder extends ItemViewHolder{
         TextView tvChannel;
         TextView tvTime;
         TextView tvTitle;
+
+        RowViewHolder(View v) {
+            super(v);
+            tvChannel = (TextView) v.findViewById(R.id.channel);
+            tvTime = (TextView) v.findViewById(R.id.time);
+            tvTitle = (TextView) v.findViewById(R.id.title);
+            v.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onItemClick(events.valueAt(getSection()).get(getPositionInSection()));
+                }
+            });
+        }
     }
 
     @Override
-    public View getRowView(int section, int row, View convertView, ViewGroup parent) {
-        RowViewHolder rowViewHolder;
+    public boolean doesSectionHaveHeader(int sectionIndex) {
+        return true;
+    }
 
-        if (convertView == null) {
-            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.event_item_row, null);
-            rowViewHolder = new RowViewHolder();
+    @Override
+    public ItemViewHolder onCreateItemViewHolder(ViewGroup parent, int itemUserType) {
+        return new RowViewHolder(inflater.inflate(R.layout.event_item_row, parent, false));
+    }
 
-            rowViewHolder.tvChannel = (TextView) convertView.findViewById(R.id.channel);
-            rowViewHolder.tvTime = (TextView) convertView.findViewById(R.id.time);
-            rowViewHolder.tvTitle = (TextView) convertView.findViewById(R.id.title);
-
-            convertView.setTag(rowViewHolder);
-        } else {
-            rowViewHolder = (RowViewHolder) convertView.getTag();
-        }
-
-        Event e = getRowItem(section, row);
+    @Override
+    public void onBindItemViewHolder(ItemViewHolder viewHolder, int sectionIndex, int itemIndex, int itemUserType) {
+        Event e = getRowItem(sectionIndex, itemIndex);
         String channel = e.getChannelBackReference().getName();
         String quality = e.getQuality();
         String language = e.getLanguage();
 
         String time = SIMPLE_DATE_FORMAT.format(new Date(e.getBeginTimeStamp())) + " - " + SIMPLE_DATE_FORMAT.format(new Date(e.getEndTimeStamp()));
 
+        RowViewHolder rowViewHolder = (RowViewHolder) viewHolder;
         rowViewHolder.tvChannel.setText(channel);
         rowViewHolder.tvTime.setText(time);
 
@@ -98,24 +109,13 @@ public class EventAdapter extends SectionAdapter {
         }
 
         rowViewHolder.tvTitle.setText(TextUtils.concat(title, languageSpannableString, qualitySpannableString));
-
-        return convertView;
     }
 
-    @Override
-    public Event getRowItem(int section, int row) {
+    private Event getRowItem(int section, int row) {
         return events.valueAt(section).get(row);
     }
 
-    @Override
-    public boolean hasSectionHeaderView(int section) {
-        return true;
-    }
-
-    @Override
-    public void onRowItemClick(AdapterView<?> parent, View view, int section, int row, long id) {
-        Event e = getRowItem(section, row);
-
+    private void onItemClick(Event e) {
         Date now = new Date();
         Date startDate = new Date(e.getBeginTimeStamp());
         Date endDate = new Date(e.getEndTimeStamp());
@@ -141,33 +141,27 @@ public class EventAdapter extends SectionAdapter {
         }
     }
 
-    private static class SectionHeaderViewHolder {
+    private static class SectionHeaderViewHolder extends HeaderViewHolder {
         TextView date;
-    }
 
-    @Override
-    public View getSectionHeaderView(int section, View convertView, ViewGroup parent) {
-        SectionHeaderViewHolder sectionHeaderViewHolder;
-
-        if (convertView == null) {
-            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.event_header_row, null);
-            sectionHeaderViewHolder = new SectionHeaderViewHolder();
-
-            sectionHeaderViewHolder.date = (TextView) convertView.findViewById(R.id.event_header_row_title);
-            convertView.setTag(sectionHeaderViewHolder);
-        } else {
-            sectionHeaderViewHolder = (SectionHeaderViewHolder) convertView.getTag();
+        SectionHeaderViewHolder(View itemView) {
+            super(itemView);
+            date = (TextView) itemView.findViewById(R.id.event_header_row_title);
         }
-
-        String date = getSectionHeaderItem(section);
-        sectionHeaderViewHolder.date.setText(date);
-
-        return convertView;
     }
 
     @Override
-    public String getSectionHeaderItem(int section) {
+    public HeaderViewHolder onCreateHeaderViewHolder(ViewGroup parent, int headerUserType) {
+        return new SectionHeaderViewHolder(inflater.inflate(R.layout.event_header_row, parent, false));
+    }
+
+    @Override
+    public void onBindHeaderViewHolder(HeaderViewHolder viewHolder, int sectionIndex, int headerUserType) {
+        String date = getSectionHeaderItem(sectionIndex);
+        ((SectionHeaderViewHolder)viewHolder).date.setText(date);
+    }
+
+    private String getSectionHeaderItem(int section) {
         Date newDate = new Date(events.keyAt(section));
         SimpleDateFormat desiredDateFormat = new SimpleDateFormat("dd-MM-yyyy");
         return desiredDateFormat.format(newDate);

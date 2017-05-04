@@ -8,7 +8,7 @@
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:layout_height="96dp"
+        android:layout_height="72dp"
         android:layout_marginBottom="16dp"
         android:contentDescription="@string/login"
         android:alpha="0.5"
@@ -78,8 +78,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPassword|textNoSuggestions"
-            android:imeOptions="actionNext"
-            android:imeActionLabel="@string/next"
+            android:imeOptions="actionGo"
             android:lines="1"
             android:singleLine="true"
             android:hint="@string/password"/>

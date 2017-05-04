@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:paddingBottom="4dp"
-              android:paddingLeft="8dp"
-              android:paddingTop="4dp">
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?selectableItemBackground"
+    android:padding="8dp">
 
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingRight="20dp"
-        android:text="################"
-        android:textAppearance="@style/ItemTitle"/>
+        style="@style/ItemTitle"
+        android:text="Tennis: Australian open"
+        />
 
     <TextView
         android:id="@+id/time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/title"
-        android:paddingRight="15dp"
-        android:text="##:##"
-        android:textAppearance="?android:attr/textAppearanceSmall"/>
+        android:paddingRight="16dp"
+        style="@style/TextAppearance.AppCompat.Caption"
+        android:text="19.22"/>
 
 
     <TextView
@@ -31,8 +31,9 @@
         android:layout_alignBaseline="@id/time"
         android:layout_toRightOf="@id/time"
         android:paddingRight="15dp"
-        android:text="##"
-        android:textAppearance="?android:attr/textAppearanceSmall"/>
+        style="@style/TextAppearance.AppCompat.Caption"
+        android:textColor="@color/primary"
+        android:text="62 - Some crazy TV"/>
 
 
 </RelativeLayout>

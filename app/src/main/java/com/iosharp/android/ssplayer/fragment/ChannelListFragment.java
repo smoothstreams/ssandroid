@@ -101,9 +101,9 @@ public class ChannelListFragment extends BaseListFragment<Channel> {
     }
 
     @Override
-    public void onDestroy() {
+    public void onDestroyView() {
         EventBus.getDefault().unregister(this);
-        super.onDestroy();
+        super.onDestroyView();
     }
 
     @Override

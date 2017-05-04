@@ -15,6 +15,8 @@ import com.iosharp.android.ssplayer.tasks.FetchLoginInfoTask;
 import com.iosharp.android.ssplayer.tasks.OnTaskCompleteListener;
 import com.iosharp.android.ssplayer.ui.Spinner;
 
+import ru.johnlife.lifetools.tools.OnDoneActionListener;
+
 /**
  * Created by Yan Yurkin
  * 04 April 2017
@@ -94,6 +96,12 @@ public class LoginActivity extends AppCompatActivity {
         });
         username = (TextView) findViewById(R.id.username);
         password = (TextView) findViewById(R.id.password);
+        password.setOnEditorActionListener(new OnDoneActionListener() {
+            @Override
+            protected void act(TextView v) {
+                loginClickListener.onClick(v);
+            }
+        });
         progress = findViewById(R.id.progress);
         error = (TextView) findViewById(R.id.error);
         findViewById(R.id.submit).setOnClickListener(loginClickListener);

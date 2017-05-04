@@ -1,38 +1,26 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="AppTheme" parent="AppTheme.Base">
-        <item name="windowNoTitle">true</item>
-        <item name="windowActionBar">false</item>
-    </style>
-
-    <style name="AppTheme.Base" parent="Theme.AppCompat.Light">
-        <item name="windowNoTitle">true</item>
-        <item name="windowActionBar">false</item>
-
-        <item name="colorPrimary">@color/SteelBlue</item>
+    <style name="AppTheme" parent="Theme.Design.Light.NoActionBar">
+        <item name="android:colorPrimary" tools:targetApi="lollipop">@color/primary</item>
+        <item name="android:colorPrimaryDark" tools:targetApi="lollipop">@color/primary_dark</item>
+        <item name="android:colorAccent" tools:targetApi="lollipop">@color/accent</item>
+        <item name="android:windowBackground">@color/background</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="android:colorBackground">@color/background</item>
     </style>
 
     <style name="AlertDialog" parent="@android:style/Theme.Dialog">
-        <item name="android:textColor">@color/SteelBlue</item>
+        <item name="android:textColor">@color/primary</item>
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
     </style>
 
-    <style name="AppTheme.Material" parent="Theme.AppCompat.Light">
-        <item name="windowNoTitle">true</item>
-        <item name="windowActionBar">false</item>
-
-        <item name="colorPrimary">@color/primary_500</item>
-        <item name="colorPrimaryDark">@color/primary_700</item>
-        <item name="colorAccent">@color/primary_accent</item>
-    </style>
-
-    <style name="ItemTitle">
+    <style name="ItemTitle" parent="TextAppearance.AppCompat.Body2">
         <item name="android:gravity">center_vertical</item>
         <item name="android:ellipsize">end</item>
-        <item name="android:maxLines">2</item>
-        <item name="android:textColor">#111111</item>
-        <item name="android:textSize">18sp</item>
-        <!--<item name="android:fontFamily">sans-serif</item>-->
+        <item name="android:maxLines">1</item>
+        <item name="android:fontFamily">sans-serif</item>
     </style>
 </resources>

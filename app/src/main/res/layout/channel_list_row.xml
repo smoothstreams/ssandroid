@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingBottom="5dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="16dp"
-                android:paddingTop="5dp">
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?selectableItemBackground"
+    android:padding="8dp">
 
     <ImageView
         android:id="@+id/icon"
-        android:layout_width="100dp"
-        android:layout_height="48dp"
+        android:layout_width="50dp"
+        android:layout_height="24dp"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:src="@drawable/default_video"/>
@@ -40,10 +39,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:ellipsize="end"
-            android:maxLines="2"
-            android:textColor="#555555"
-            android:textSize="14sp"
-            android:visibility="visible"/>
+            android:maxLines="1"
+            style="@style/TextAppearance.AppCompat.Caption"/>
     </LinearLayout>
 
 </RelativeLayout>

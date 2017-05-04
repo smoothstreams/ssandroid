@@ -1,15 +1,16 @@
 package com.iosharp.android.ssplayer.fragment;
 
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.support.design.widget.AppBarLayout;
+import android.support.v7.widget.RecyclerView;
 import android.util.LongSparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.applidium.headerlistview.HeaderListView;
-import com.iosharp.android.ssplayer.R;
 import com.iosharp.android.ssplayer.adapter.EventAdapter;
 import com.iosharp.android.ssplayer.data.Event;
 import com.iosharp.android.ssplayer.events.EventsListEvent;
@@ -17,31 +18,46 @@ import com.iosharp.android.ssplayer.events.EventsListEvent;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.zakariya.stickyheaders.StickyHeaderLayoutManager;
 
 import java.util.List;
 
-public class EventListFragment extends Fragment {
+import ru.johnlife.lifetools.fragment.BaseAbstractFragment;
+
+public class EventListFragment extends BaseAbstractFragment {
     private EventAdapter adapter;
 
-    public EventListFragment() {}
 
     @Override
-    public void onDestroy() {
+    public void onDestroyView() {
         EventBus.getDefault().unregister(this);
-        super.onDestroy();
+        super.onDestroyView();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_event_list, container, false);
-        HeaderListView list = (HeaderListView) rootView.findViewById(R.id.channel_list_view);
-        // This can be removed when HeaderListView fixes a bug https://github.com/applidium/HeaderListView/issues/28
-        //noinspection ResourceType
-        list.setId(2);
-        adapter = new EventAdapter(getActivity());
-        list.setAdapter(adapter);
+    protected String getTitle(Resources r) {
+        return null;
+    }
+
+    @Override
+    protected AppBarLayout getToolbar(LayoutInflater inflater, ViewGroup container) {
+        return null;
+    }
+
+    @Override
+    protected View createView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Context context = inflater.getContext();
+        ViewGroup view = (ViewGroup) inflater.inflate(ru.johnlife.lifetools.R.layout.fragment_list, container, true);
+        RecyclerView list = (RecyclerView) view.findViewById(ru.johnlife.lifetools.R.id.list);
+        if (null != list) {
+            list.setHasFixedSize(true);
+            list.setLayoutManager(new StickyHeaderLayoutManager());
+            adapter = new EventAdapter(context);
+            list.setAdapter(adapter);
+//            list.setAdapter(new SectioningAdapter());
+        }
         EventBus.getDefault().register(this);
-        return rootView;
+        return view;
     }
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)

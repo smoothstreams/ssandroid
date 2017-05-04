@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="white">#FFFFFF</color>
-    <color name="SteelBlue">#4682B4</color>
-    <color name="Black">#000000</color>
+    <color name="primary">#4c7fab</color>
+    <color name="primary_dark">#406b91</color>
+    <color name="background">#fff</color>
+    <color name="accent">#6db7f7</color>
 
-    <color name="primary_500">#3F51B5</color>
-    <color name="primary_700">#303F9F</color>
-    <color name="primary_accent">#C5CAE9</color>
     <color name="divider">#22000000</color>
+    <color name="Black">#000000</color>
 
 </resources>
