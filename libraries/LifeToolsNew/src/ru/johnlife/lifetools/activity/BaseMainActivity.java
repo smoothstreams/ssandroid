@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.MenuItem;
 
 import java.util.ArrayList;
@@ -95,11 +96,12 @@ public abstract class BaseMainActivity extends BaseActivity {
         return -1;
     }
 
-    public void changeFragment(BaseAbstractFragment fragment) {
+    public final void changeFragment(BaseAbstractFragment fragment) {
         changeFragment(fragment, false);
     }
 
     public void changeFragment(BaseAbstractFragment fragment, boolean addToBack) {
+        Log.w("ActivityTransaction", "Activity: "+this + " -> "+fragment);
         if (fragment == null || currentFragment != null && currentFragment.getClass().equals(fragment.getClass())) return;
         if (!addToBack) {
             while (fragmentManager().getBackStackEntryCount() > 0) {

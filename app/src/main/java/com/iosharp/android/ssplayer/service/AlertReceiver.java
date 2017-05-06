@@ -41,7 +41,7 @@ public class AlertReceiver extends BroadcastReceiver {
         Notification notification = new NotificationCompat.Builder(context)
             .setContentTitle(eventName)
             .setContentText("On channel " + channel + " at " + formattedDateString)
-            .setSmallIcon(R.drawable.ic_launcher)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .build();

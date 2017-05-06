@@ -61,7 +61,7 @@ public class AlertFragment extends DialogFragment {
         final TypedArray spinnerValues = getResources().obtainTypedArray(R.array.list_times_values);
 
         AlertDialog.Builder d = new AlertDialog.Builder(getActivity())
-                .setIcon(R.drawable.ic_launcher)
+                .setIcon(R.mipmap.ic_launcher)
                 .setTitle(getString(R.string.alert_title))
                 .setPositiveButton(getString(R.string.alert_ok), new DialogInterface.OnClickListener() {
                     @Override
