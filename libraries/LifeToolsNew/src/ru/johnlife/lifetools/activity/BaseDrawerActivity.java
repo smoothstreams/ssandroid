@@ -69,7 +69,8 @@ public abstract class BaseDrawerActivity extends BaseMainActivity {
         );
         drawerMenu.setLayoutParams(layout);
         drawerMenu.inflateMenu(dd.menuId);
-        drawerMenu.inflateHeaderView(dd.headerLayoutId);
+        View headerView = drawerMenu.inflateHeaderView(dd.headerLayoutId);
+        onHeaderViewInflated(headerView);
         drawer.addView(drawerMenu, layout);
         if (dd.getFooterLayoutId() != -1) {
             getLayoutInflater().inflate(dd.getFooterLayoutId(), drawerMenu, true);
@@ -86,6 +87,8 @@ public abstract class BaseDrawerActivity extends BaseMainActivity {
             pendingToolbar = null;
         }
     }
+
+    protected void onHeaderViewInflated(View headerView) {}
 
     public Menu getMainMenu() {
         return drawerMenu.getMenu();

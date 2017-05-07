@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -32,6 +33,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 import ru.johnlife.lifetools.ClassConstantsProvider;
 import ru.johnlife.lifetools.orm.OrmHelper;
+import ru.johnlife.lifetools.reporter.LifetoolsExceptionReporter;
 import ru.johnlife.lifetools.service.BaseBackgroundService;
 import ru.johnlife.lifetools.tools.DateUtil;
 
@@ -97,8 +99,13 @@ public class BackgroundService extends BaseBackgroundService {
             .addInterceptor(new Interceptor() {
                 @Override
                 public okhttp3.Response intercept(Chain chain) throws IOException {
-                    Request request = chain.request().newBuilder().addHeader("User-Agent", Constants.USER_AGENT).build();
-                    return chain.proceed(request);
+                    try {
+                        Request request = chain.request().newBuilder().addHeader("User-Agent", Constants.USER_AGENT).build();
+                        return chain.proceed(request);
+                    } catch (NoSuchElementException e) {
+                        LifetoolsExceptionReporter.logIfAvailable(e);
+                        return chain.proceed(chain.request());
+                    }
                 }
             })
             .build();

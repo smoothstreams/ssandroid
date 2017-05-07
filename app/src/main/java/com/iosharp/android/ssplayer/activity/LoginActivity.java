@@ -47,6 +47,7 @@ public class LoginActivity extends AppCompatActivity {
             }
             if (valid) {
                 progress.setVisibility(View.VISIBLE);
+                submit.setVisibility(View.GONE);
                 new FetchLoginInfoTask(
                     v.getContext(),
                     username.getText().toString().trim(),
@@ -62,6 +63,7 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void error(String error) {
                             progress.setVisibility(View.GONE);
+                            submit.setVisibility(View.VISIBLE);
                             showError(error);
                         }
                     }
@@ -80,6 +82,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextView password;
     private TextView error;
     private View progress;
+    private View submit;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -104,7 +107,8 @@ public class LoginActivity extends AppCompatActivity {
         });
         progress = findViewById(R.id.progress);
         error = (TextView) findViewById(R.id.error);
-        findViewById(R.id.submit).setOnClickListener(loginClickListener);
+        submit = findViewById(R.id.submit);
+        submit.setOnClickListener(loginClickListener);
         //fill-up data
         if (Service.hasActive()) {
             selectedService = Service.getCurrent();
