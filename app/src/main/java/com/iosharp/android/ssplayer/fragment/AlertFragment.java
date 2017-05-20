@@ -29,7 +29,6 @@ public class AlertFragment extends DialogFragment {
     private static final String TAG = AlertFragment.class.getSimpleName();
 
     public static final String BUNDLE_NAME = "name";
-    public static final String BUNDLE_CHANNEL = "channel";
     public static final String BUNDLE_TIME = "time";
     public static final String BUNDLE_ID = "id";
 
@@ -54,7 +53,7 @@ public class AlertFragment extends DialogFragment {
         if (b != null) {
             mId = b.getInt(BUNDLE_ID);
             mEventName = b.getString(BUNDLE_NAME);
-            mEventChannel = b.getInt(BUNDLE_CHANNEL);
+            mEventChannel = b.getInt(Constants.EXTRA_CHANNEL);
             mEventTime = b.getLong(BUNDLE_TIME);
         }
 
@@ -70,9 +69,9 @@ public class AlertFragment extends DialogFragment {
                         long reminderMilliseconds = reminder * 60 * 1000;
 
                         Intent intent = new Intent(getActivity(), AlertReceiver.class);
-                        intent.putExtra(AlertReceiver.EXTRA_NAME, mEventName);
-                        intent.putExtra(AlertReceiver.EXTRA_TIME, mEventTime);
-                        intent.putExtra(AlertReceiver.EXTRA_CHANNEL, mEventChannel);
+                        intent.putExtra(Constants.EXTRA_NAME, mEventName);
+                        intent.putExtra(Constants.EXTRA_TIME, mEventTime);
+                        intent.putExtra(Constants.EXTRA_CHANNEL, mEventChannel);
 
                         PendingIntent eventAlertIntent = PendingIntent.getBroadcast(getActivity(),
                                 mId * 100,

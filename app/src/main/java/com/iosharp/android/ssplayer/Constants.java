@@ -49,4 +49,8 @@ public interface Constants extends ru.johnlife.lifetools.Constants {
     String USER_AGENT = "SmoothStreamsPlayer " + VERSION;
 
     long UPDATE_DELAY = 15*MINUTE;
+    String EXTRA_NAME = "name";
+    String EXTRA_CHANNEL = "channel";
+    String EXTRA_TIME = "time";
+    String EXTRA_MEDIA = "media";
 }

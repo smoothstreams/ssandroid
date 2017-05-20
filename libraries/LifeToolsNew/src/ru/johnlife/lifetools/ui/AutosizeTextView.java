@@ -220,6 +220,7 @@ public class AutosizeTextView extends TextView {
                 mTextRect.bottom = mPaint.getFontSpacing();
                 mTextRect.right = mPaint.measureText(text);
             } else {
+                mWidthLimit = Math.max(mWidthLimit, 0);
                 StaticLayout layout = new StaticLayout(
                         text, mPaint, mWidthLimit, Alignment.ALIGN_NORMAL, mSpacingMult, mSpacingAdd, true);
                 // return early if we have more lines

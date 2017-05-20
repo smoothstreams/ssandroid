@@ -38,24 +38,29 @@ public abstract class BaseAbstractFragment extends Fragment implements Constants
 	private View mainView;
 	private Toolbar toolbar;
 
-	public void addParam(String name, String value) {
+	public BaseAbstractFragment addParam(String name, String value) {
 		getParams().putString(name, value);
+		return this;
 	}
 
-	public void addParam(String name, int value) {
+	public BaseAbstractFragment addParam(String name, int value) {
 		getParams().putInt(name, value);
+		return this;
 	}
 
-	public void addParam(String name, long value) {
+	public BaseAbstractFragment addParam(String name, long value) {
 		getParams().putLong(name, value);
+		return this;
 	}
 
-	public void addParam(String name, boolean value) {
+	public BaseAbstractFragment addParam(String name, boolean value) {
 		getParams().putBoolean(name, value);
+		return this;
 	}
 
-	public void addParam(String name, Parcelable value) {
+	public BaseAbstractFragment addParam(String name, Parcelable value) {
 		getParams().putParcelable(name, value);
+		return this;
 	}
 
 

@@ -1,7 +1,10 @@
 package com.iosharp.android.ssplayer.fragment;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -22,12 +25,20 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import ru.johnlife.lifetools.adapter.BaseAdapter;
 import ru.johnlife.lifetools.fragment.BaseListFragment;
 
 public class ChannelListFragment extends BaseListFragment<Channel> {
+    private static class Header extends Channel {
+        public Header(String title) {
+            setName(title);
+        }
+    }
+
     private BaseAdapter<Channel> adapter;
 
     @Override
@@ -40,20 +51,23 @@ public class ChannelListFragment extends BaseListFragment<Channel> {
                     private TextView event = (TextView) view.findViewById(R.id.event);
                     private ImageView icon = (ImageView) view.findViewById(R.id.icon);
 
-                    private View.OnClickListener itemClickListener = new View.OnClickListener() {
-                        @Override
-                        public void onClick(final View v) {
-                            VideoNavigationHandler.handleNavigation(getItem(), getActivity());
-                        }
-                    };
-
                     {
-                        view.setOnClickListener(itemClickListener);
+                        view.setOnClickListener(v -> {
+                            if (getItem() instanceof Header) return;
+                            VideoNavigationHandler.handleNavigation(getItem(), getActivity());
+                        });
                     }
 
                     @Override
                     protected void hold(Channel channel) {
+                        boolean isHeader = channel instanceof Header;
                         title.setText(channel.getName());
+                        title.setTextAppearance(title.getContext(), isHeader ? R.style.Header : R.style.ItemTitle);
+                        icon.setVisibility(isHeader ? View.GONE : View.VISIBLE);
+                        if (isHeader) {
+                            event.setVisibility(View.GONE);
+                            return;
+                        }
                         setEvent(channel);
                         Picasso.with(context)
                             .load(channel.getImg())
@@ -119,9 +133,43 @@ public class ChannelListFragment extends BaseListFragment<Channel> {
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onChannelsEvent(ChannelsListEvent event) {
         List<Channel> channels = event.getChannels();
-        if (null != channels && !channels.isEmpty() && null != adapter) {
-            adapter.clear();
-            adapter.addAll(channels);
+        if (channels.isEmpty() || (null == adapter)) return;
+        List<ChannelTop> top = new ArrayList<>();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        for (Channel channel : channels) {
+            int total = prefs.getInt("" + channel.getChannelId(), 0);
+            if (total > 0) {
+                top.add(new ChannelTop(total, channel));
+            }
+        }
+        Collections.sort(top);
+        top = top.subList(0,Math.min(3, top.size()));
+        int i=1;
+        adapter.set(channels);
+        if (!top.isEmpty()) {
+            adapter.add(new Header("Top watched"), 0);
+            for (ChannelTop t : top) {
+                if (t.total > 0) adapter.add(t.channel, i++);
+            }
+            adapter.add(new Header("All channels"), i);
+        }
+    }
+
+
+    private static class ChannelTop implements Comparable<ChannelTop> {
+        private int total;
+        private Channel channel;
+
+        public ChannelTop(int total, Channel channel) {
+            this.total = total;
+            this.channel = channel;
+        }
+
+        @Override
+        public int compareTo(@NonNull ChannelTop o) {
+            int y = total;
+            int x = o.total;
+            return (x < y) ? -1 : ((x == y) ? 0 : 1);
         }
     }
 }

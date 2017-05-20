@@ -20,15 +20,12 @@ import static android.content.Context.NOTIFICATION_SERVICE;
  * 22 April 2017
  */
 public class AlertReceiver extends BroadcastReceiver {
-    public static final String EXTRA_NAME = "name";
-    public static final String EXTRA_CHANNEL = "channel";
-    public static final String EXTRA_TIME = "time";
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        String eventName = intent.getStringExtra(EXTRA_NAME);
-        int channel = intent.getIntExtra(EXTRA_CHANNEL, -1);
-        long time = intent.getLongExtra(EXTRA_TIME, -1);
+        String eventName = intent.getStringExtra(Constants.EXTRA_NAME);
+        int channel = intent.getIntExtra(Constants.EXTRA_CHANNEL, -1);
+        long time = intent.getLongExtra(Constants.EXTRA_TIME, -1);
 
         String formattedDateString = Utils.formatLongToString(time, Constants.YEAR_TIME_FORMAT);
 

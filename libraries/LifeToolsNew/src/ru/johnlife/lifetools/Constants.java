@@ -34,6 +34,7 @@ public interface Constants {
 	long WEEK = 7 * DAY;
 	long MONTH = 30 * DAY;
 	long YEAR = 365 * DAY;
+	SimpleDateFormat ISO_GMT_DateFormat_LocalTimezone = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.UK);
 	SimpleDateFormat ISO_GMT_DateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.UK){{
 		setTimeZone(TimeZone.getTimeZone("GMT"));
 	}};

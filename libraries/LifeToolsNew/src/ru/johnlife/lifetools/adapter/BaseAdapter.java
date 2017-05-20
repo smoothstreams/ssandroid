@@ -26,6 +26,8 @@ public abstract class BaseAdapter<T extends AbstractData> extends RecyclerView.A
             hold(item);
         }
 
+        protected void onDetached() {}
+
         protected abstract void hold(T item);
 
         public T getItem() {
@@ -59,6 +61,13 @@ public abstract class BaseAdapter<T extends AbstractData> extends RecyclerView.A
     }
 
     protected abstract ViewHolder<T> createViewHolder(final View view);
+
+    @Override
+    public void onViewRecycled(RecyclerView.ViewHolder viewHolder) {
+        ViewHolder<T> holder = (ViewHolder<T>) viewHolder;
+        holder.onDetached();
+        super.onViewRecycled(holder);
+    }
 
     @Override
     public int getItemCount() {

@@ -2,10 +2,12 @@ package com.iosharp.android.ssplayer.videoplayer;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
@@ -44,11 +46,15 @@ import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.Session;
 import com.google.android.gms.cast.framework.SessionManagerListener;
+import com.iosharp.android.ssplayer.Constants;
 import com.iosharp.android.ssplayer.PlayerApplication;
 import com.iosharp.android.ssplayer.R;
 import com.iosharp.android.ssplayer.utils.CastUtils;
 
 import java.io.IOException;
+
+import static com.iosharp.android.ssplayer.Constants.EXTRA_CHANNEL;
+import static com.iosharp.android.ssplayer.Constants.EXTRA_MEDIA;
 
 
 public class VideoActivity extends AppCompatActivity  {
@@ -63,6 +69,8 @@ public class VideoActivity extends AppCompatActivity  {
     private Tracker mTracker;
     private View progress;
     private SimpleExoPlayer player;
+    private int channelId;
+    private long startTimeStamp;
     private boolean userCancelled;
 
     private AdaptiveMediaSourceEventListener eventListener = new AdaptiveMediaSourceEventListener() {
@@ -154,10 +162,11 @@ public class VideoActivity extends AppCompatActivity  {
 
         Bundle b = getIntent().getExtras();
         if (b != null) {
-            mSelectedMedia = CastUtils.bundleToMediaInfo(getIntent().getBundleExtra("media"));
+            mSelectedMedia = CastUtils.bundleToMediaInfo(getIntent().getBundleExtra(EXTRA_MEDIA));
             String title = mSelectedMedia.getMetadata().getString(MediaMetadata.KEY_TITLE);
             getSupportActionBar().setTitle(title);
             mURL = mSelectedMedia.getContentId();
+            channelId = b.getInt(EXTRA_CHANNEL, -1);
         } else {
             Log.w(getClass().getSimpleName(), "You have to start this activity with parameters. Exiting.");
             finish();
@@ -190,6 +199,7 @@ public class VideoActivity extends AppCompatActivity  {
     protected void onResume() {
         super.onResume();
         initPlayer();
+        startTimeStamp = System.currentTimeMillis();
         if (mCastManager != null) {
             mCastManager.getSessionManager().addSessionManagerListener(mSessionManagerListener);
         }
@@ -201,6 +211,10 @@ public class VideoActivity extends AppCompatActivity  {
         super.onPause();
         player.release();
         player = null;
+        int elapsed = (int) ((System.currentTimeMillis() - startTimeStamp) / Constants.MINUTE);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        int previousValue = prefs.getInt("" + channelId, 0);
+        prefs.edit().putInt(""+channelId, previousValue+elapsed).apply();
         if (mCastManager != null) {
             mCastManager.getSessionManager().removeSessionManagerListener(mSessionManagerListener);
         }
@@ -218,12 +232,7 @@ public class VideoActivity extends AppCompatActivity  {
         if (!getSupportActionBar().isShowing()) {
             getSupportActionBar().show();
             Handler h = new Handler();
-            h.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    getSupportActionBar().hide();
-                }
-            }, sDefaultTimeout);
+            h.postDelayed(() -> getSupportActionBar().hide(), sDefaultTimeout);
         }
     }
 
@@ -236,17 +245,9 @@ public class VideoActivity extends AppCompatActivity  {
     private void hideSoftKeys() {
         final View v = getWindow().getDecorView();
         v.setSystemUiVisibility(UI_OPTIONS);
-        v.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
-            @Override
-            public void onSystemUiVisibilityChange(int i) {
-                Handler h = new Handler();
-                h.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        v.setSystemUiVisibility(UI_OPTIONS);
-                    }
-                }, sDefaultTimeout);
-            }
+        v.setOnSystemUiVisibilityChangeListener(i -> {
+            Handler h = new Handler();
+            h.postDelayed(() -> v.setSystemUiVisibility(UI_OPTIONS), sDefaultTimeout);
         });
     }
 

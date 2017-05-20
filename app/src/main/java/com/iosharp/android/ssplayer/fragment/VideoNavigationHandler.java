@@ -9,6 +9,7 @@ import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastState;
+import com.iosharp.android.ssplayer.Constants;
 import com.iosharp.android.ssplayer.PlayerApplication;
 import com.iosharp.android.ssplayer.R;
 import com.iosharp.android.ssplayer.activity.LoginActivity;
@@ -25,6 +26,7 @@ import static com.iosharp.android.ssplayer.utils.CastUtils.mediaInfoToBundle;
  * 24 April 2017
  */
 public class VideoNavigationHandler {
+
     public static void handleNavigation(final Channel channel, final Activity activity) {
         if (Service.hasActive() && User.hasActive()) {
             if (!User.getCurrentUser().hasActiveHash()) {
@@ -49,8 +51,8 @@ public class VideoNavigationHandler {
 //                      castManager.startVideoCastControllerActivity(context, info, 0, true);
                     } else {
                         Intent intent = new Intent(activity, VideoActivity.class);
-                        intent.putExtra("media", mediaInfoToBundle(info));
-                        intent.putExtra("channel", channel.getChannelId());
+                        intent.putExtra(Constants.EXTRA_MEDIA, mediaInfoToBundle(info));
+                        intent.putExtra(Constants.EXTRA_CHANNEL, channel.getChannelId());
                         t.send(new HitBuilders.EventBuilder()
                             .setCategory(activity.getString(R.string.ga_events_category_playback))
                             .setAction(activity.getString(R.string.ga_events_action_local))

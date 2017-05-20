@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.iosharp.android.ssplayer.Constants;
 import com.iosharp.android.ssplayer.R;
 import com.iosharp.android.ssplayer.data.Event;
 import com.iosharp.android.ssplayer.fragment.AlertFragment;
@@ -129,7 +130,7 @@ public class EventAdapter extends SectioningAdapter {
 
                 b.putInt(AlertFragment.BUNDLE_ID, e.getId());
                 b.putString(AlertFragment.BUNDLE_NAME, e.getName());
-                b.putInt(AlertFragment.BUNDLE_CHANNEL, e.getChannelBackReference().getChannelId());
+                b.putInt(Constants.EXTRA_CHANNEL, e.getChannelBackReference().getChannelId());
                 b.putLong(AlertFragment.BUNDLE_TIME, e.getBeginTimeStamp());
 
                 AlertFragment alertFragment = new AlertFragment();

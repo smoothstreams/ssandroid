@@ -7,7 +7,7 @@ import android.content.ContentResolver;
 import android.os.Bundle;
 
 public class SyncableApplication extends Application {
-    private static final int MINUTE = 60;
+    private static final int MINUTE = 60; //DON'T REMOVE - IT'S NOT MILLISECONDS
     private static final int INTERVAL = 20*MINUTE;
 	// The authority for the sync adapter's content provider
     public static final String AUTHORITY = "<package>.sync.provider";
